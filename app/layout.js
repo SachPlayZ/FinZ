@@ -2,7 +2,7 @@
 import { Inter } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import './globals.css'
-import Navbar from './_components/Navbar'
+import ClientNavbar from './_components/ClientNavbar';
 
 export const metadata = {
   title: 'FinZ',
@@ -31,7 +31,7 @@ export default function Layout({ children }) {
           fontBody.variable
         )}
       >
-        <Navbar />
+        <ClientNavbar />
         {children}
       </body>
     </html>
