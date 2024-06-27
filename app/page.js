@@ -6,15 +6,15 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-[100dvh] bg-[#000] text-[#ff6b6b]">
       <main className="flex-1">
-        <section className="px-10 w-full py-12 md:py-24 lg:py-32 xl:py-48">
+        <section className="px-10 w-full py-12 md:py-24 lg:py-32 xl:py-48 animate-fade-in">
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-4">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none animate-fade-in-delay-100">
                     Take Control of Your Expenses
                   </h1>
-                  <p className="max-w-[600px] text-[#ccc] md:text-xl">
+                  <p className="max-w-[600px] text-[#ccc] md:text-xl animate-fade-in-delay-200">
                     Our Expenses Management app helps you track, categorize, and manage your expenses with ease. Stay on
                     top of your finances and make smarter decisions.
                   </p>
@@ -35,7 +35,7 @@ export default function Home() {
                 width="400"
                 height="310"
                 alt="Hero"
-                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
+                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last animate-fade-in-delay-300"
               />
             </div>
           </div>
