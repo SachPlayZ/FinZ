@@ -3,7 +3,7 @@
 import { verifyToken } from "@/app/_middleware/auth";
 import { NextResponse } from 'next/server';
 
-const check = async (req, res) => {
+const check = async (req) => {
   try {
     let body = await req.json();
     const token = body.token;
