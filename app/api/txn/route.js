@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/app/_middleware/mongodb";
 import mongoose from "mongoose";
-import { TransactionSchema } from "@/app/_models/schema";
+import { TransactionSchema, CashBalanceSchema, BankBalanceSchema } from "@/app/_models/schema";
 
 const Transaction = mongoose.models.Transactions || mongoose.model('Transactions', TransactionSchema);
+const CashBalance = mongoose.models.CashBalance || mongoose.model('CashBalance', CashBalanceSchema);
+const BankBalance = mongoose.models.BankBalance || mongoose.model('BankBalance', BankBalanceSchema);
 
 async function posthandler(req) {
     await connectToDatabase();
@@ -15,14 +17,36 @@ async function posthandler(req) {
         return NextResponse.json({ message: 'Invalid JSON' }, { status: 400 });
     }
 
-    const { user, amount, type, description, date } = body;
-    if (!user || !amount || !type || !description || !date) {
+    const { user, amount, category, mode, type, description, date, tags } = body;
+    if (!user || !amount || !category || !mode || !type || !date) {
         return NextResponse.json({ message: 'Missing fields' }, { status: 400 });
     }
 
     try {
-        const transaction = new Transaction({ user, amount, type, description, date });
+        const transaction = new Transaction({ user, amount, category, mode, type, description, date, tags });
         await transaction.save();
+        if (type === 'expense') {
+            const cashBalance = await CashBalance.findOne({ user });
+            const bankBalance = await BankBalance.findOne({ user });
+            if (mode === 'cash') {
+                cashBalance.balance = cashBalance.balance - amount;
+                await cashBalance.save();
+            } else {
+                bankBalance.balance = bankBalance.balance - amount;
+                await bankBalance.save();
+            }
+        }
+        else {
+            const cashBalance = await CashBalance.findOne({ user });
+            const bankBalance = await BankBalance.findOne({ user });
+            if (mode === 'cash') {
+                cashBalance.balance = cashBalance.balance + amount;
+                await cashBalance.save();
+            } else {
+                bankBalance.balance = bankBalance.balance + amount;
+                await bankBalance.save();
+            }
+        }
         return NextResponse.json({ message: 'Transaction created successfully', transaction }, { status: 201 });
     } catch (error) {
         console.error('Error creating transaction:', error);

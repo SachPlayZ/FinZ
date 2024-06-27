@@ -7,8 +7,14 @@ const UserSchema = new mongoose.Schema({
   });
 
 const TransactionSchema = new mongoose.Schema({
-    user: String,
-    amount: Number,
+    user: {
+        type: String,
+        required: true
+    },
+    amount: {
+        type: Number,
+        required: true
+    },
     category: String,
     mode: {
         type: String,
@@ -24,9 +30,13 @@ const TransactionSchema = new mongoose.Schema({
     date: 
     {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        required: true
     },
-    tags: [String],
+    tags: {
+        type: [String],
+        default: []
+    },
 });
 
 const TransferSchema = new mongoose.Schema({
@@ -41,20 +51,76 @@ const TransferSchema = new mongoose.Schema({
         required: true,
         enum: ['cash', 'bank']
     },
-    amount: Number,
+    amount: {
+        type: Number,
+        required: true
+    },
     date: 
     {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        required: true
     },
     description: String,
-    tags: [String],
+    tags: {
+        type: [String],
+        default: []
+    },
 });
 
+const BudgetSchema = new mongoose.Schema({
+    user: String,
+    category: String,
+    amount: Number,
+    startDate: Date,
+    endDate: Date,
+});
 
+const CustomTagSchema = new mongoose.Schema({
+    user: String,
+    tag: String,
+});
+
+const CategorySchema = new mongoose.Schema({
+    user: String,
+    category: String,
+});
+
+const ParentSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    password: String,
+    childId: String
+});
+
+const AdoptSchema = new mongoose.Schema({
+    parentId: String,
+    childId: String,
+    resolved: {
+        type: Boolean,
+        default: false
+    }
+});
+
+const CashBalanceSchema = new mongoose.Schema({
+    user: String,
+    balance: Number
+});
+
+const BankBalanceSchema = new mongoose.Schema({
+    user: String,
+    balance: Number
+});
 
 export { 
     UserSchema, 
     TransactionSchema, 
-    TransferSchema 
+    TransferSchema,
+    BudgetSchema,
+    CustomTagSchema,
+    CategorySchema,
+    ParentSchema,
+    AdoptSchema,
+    CashBalanceSchema,
+    BankBalanceSchema
 };

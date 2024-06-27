@@ -4,14 +4,8 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '../../_middleware/mongodb';
 import mongoose from 'mongoose';
-import { UserSchema } from '@/app/_models/schema';
+import { UserSchema, BankBalanceSchema, CashBalanceSchema } from '@/app/_models/schema';
 import { hash } from 'bcryptjs';
-
-// const UserSchema = new mongoose.Schema({
-//   name: String,
-//   email: String,
-//   password: String,
-// });
 
 async function posthandler(req) {
   await connectToDatabase();
@@ -42,6 +36,10 @@ async function posthandler(req) {
 
     const user = new User({ name: username, email, password: hashedPassword });
     await user.save();
+    const CashBalance = mongoose.models.CashBalance || mongoose.model('CashBalance', CashBalanceSchema);
+    const BankBalance = mongoose.models.BankBalance || mongoose.model('BankBalance', BankBalanceSchema);
+    const cashBalance = new CashBalance({ user: user._id, balance: 0 });
+    const bankBalance = new BankBalance({ user: user._id, balance: 0 });
     return NextResponse.json({ message: 'User registered successfully' }, { status: 201 });
   } catch (error) {
     console.error('Error registering user:', error);
