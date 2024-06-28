@@ -7,14 +7,14 @@ import { Progress } from "@/components/ui/progress"
 
 export default function page() {
   return (
-    (<div className="flex flex-col h-screen bg-background">
+    (<div className="flex flex-col h-screen bg-background text-red-800">
       <header className="flex items-center justify-between px-4 py-3 border-b bg-card">
         <Link
           href="#"
           className="flex items-center gap-2 text-lg font-bold"
           prefetch={false}>
           <WalletIcon className="w-6 h-6" />
-          Expense Tracker
+          FinZ: Finance for GenZ
         </Link>
         <nav className="flex items-center gap-4">
           <Link
@@ -52,11 +52,11 @@ export default function page() {
                 <TooltipContent>
                   <div className="grid gap-2">
                     <div className="flex items-center justify-between">
-                      <span>Cash Balance</span>
+                      <span>Cash Balance:</span> <br/>
                       <span>$2,450.00</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span>Bank Balance</span>
+                      <span>Bank Balance:</span> <br/>
                       <span>$5,320.00</span>
                     </div>
                   </div>
