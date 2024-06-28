@@ -1,23 +1,35 @@
+"use client"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import { motion } from "framer-motion"
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-[100dvh] bg-[#000] text-[#ff6b6b]">
       <main className="flex-1">
-        <section className="px-10 w-full py-12 md:py-24 lg:py-32 xl:py-48 animate-fade-in 
-        ">
-          {/* bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-orange-600 to-black */}
+        <motion.section
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="px-10 w-full py-12 md:py-24 lg:py-32 xl:py-48"
+          viewport={{ once: true }}
+        >
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-              <div className="flex flex-col justify-center space-y-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 0.2 }}
+                className="flex flex-col justify-center space-y-4"
+                viewport={{ once: true }}
+              >
                 <div className="space-y-4">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none animate-fade-in-delay-100">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                     Take Control of Your Expenses
                   </h1>
-                  <p className="max-w-[600px] text-[#ccc] md:text-xl animate-fade-in-delay-200">
+                  <p className="max-w-[600px] text-[#ccc] md:text-xl">
                     Our Expenses Management app helps you track, categorize, and manage your expenses with ease. Stay on
                     top of your finances and make smarter decisions.
                   </p>
@@ -30,23 +42,41 @@ export default function Home() {
                   >
                     Sign Up
                   </Link>
-                  
                 </div>
-              </div>
-              <Image
-                src="/finhero.png"
-                width={550}
-                height={310}
-                alt="Hero"
-                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last animate-fade-in-delay-300"
-              />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 0.4 }}
+                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
+                viewport={{ once: true }}
+              >
+                <Image
+                  src="/finhero.png"
+                  width={550}
+                  height={310}
+                  alt="Hero"
+                />
+              </motion.div>
             </div>
           </div>
-        </section>
-        <section className="px-10 w-full py-12 md:py-24 lg:py-32">
+        </motion.section>
+        <motion.section
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="px-10 w-full py-12 md:py-24 lg:py-32"
+          viewport={{ once: true }}
+        >
           <div className="container px-4 md:px-6">
             <div className="grid items-center gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_550px]">
-              <div className="flex flex-col justify-center space-y-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 0.2 }}
+                className="flex flex-col justify-center space-y-4"
+                viewport={{ once: true }}
+              >
                 <div className="space-y-2">
                   <div className="inline-block rounded-lg bg-[#ff6b6b] px-3 py-1 mb-4 text-sm text-[#000]">Key Features</div>
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Manage Your Expenses with Ease</h2>
@@ -81,29 +111,53 @@ export default function Home() {
                   >
                     Sign Up
                   </Link>
-                  
                 </div>
-              </div>
-              <Image
-                src="/finhero2.png"
-                width={550}
-                height={310}
-                alt="Features"
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 0.4 }}
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
-              />
+                viewport={{ once: true }}
+              >
+                <Image
+                  src="/finhero2.png"
+                  width={550}
+                  height={310}
+                  alt="Features"
+                />
+              </motion.div>
             </div>
           </div>
-        </section>
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-[#ff6b6b] text-[#000]">
+        </motion.section>
+        <motion.section
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="w-full py-12 md:py-24 lg:py-32 bg-[#ff6b6b] text-[#000]"
+          viewport={{ once: true }}
+        >
           <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-            <div className="space-y-3">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.2 }}
+              className="space-y-3"
+              viewport={{ once: true }}
+            >
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Take Control of Your Finances</h2>
               <p className="mx-auto max-w-[600px] text-[#333] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Sign up for our Newsletter and get fresh news straight into your inbox. Its free to get
                 started!
               </p>
-            </div>
-            <div className="mx-auto w-full max-w-sm space-y-2">
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.4 }}
+              className="mx-auto w-full max-w-sm space-y-2"
+              viewport={{ once: true }}
+            >
               <form className="flex gap-2">
                 <Input
                   type="email"
@@ -120,11 +174,17 @@ export default function Home() {
                   Terms &amp; Conditions
                 </Link>
               </p>
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
       </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+      <motion.footer
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t"
+        viewport={{ once: true }}
+      >
         <p className="text-xs text-[#ccc]">&copy; 2024 Expense Manager. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
@@ -134,7 +194,7 @@ export default function Home() {
             Privacy
           </Link>
         </nav>
-      </footer>
+      </motion.footer>
     </div>
   )
 }
