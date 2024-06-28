@@ -45,11 +45,11 @@ export default function Page() {
     (<div className="flex flex-col h-screen bg-black text-orange-600">
       <header className="flex items-center bg-black justify-between px-4 py-3">
         <Link
-          href="#"
+          href="/"
           className="flex items-center gap-2 text-lg font-bold"
           prefetch={false}>
           <WalletIcon className="w-6 h-6" />
-          FinZ: Finance for GenZ
+          FinZ<span className="hidden md:inline">:Finance for GenZ</span>
         </Link>
         <nav className="flex items-center gap-4">
           <Link
