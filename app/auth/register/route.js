@@ -6,6 +6,8 @@ import connectToDatabase from '../../_middleware/mongodb';
 import mongoose from 'mongoose';
 import { UserSchema, BankBalanceSchema, CashBalanceSchema } from '@/app/_models/schema';
 import { hash } from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+const secretKey = process.env.JWT_SECRET;
 
 async function posthandler(req) {
   await connectToDatabase();
@@ -40,7 +42,10 @@ async function posthandler(req) {
     const BankBalance = mongoose.models.BankBalance || mongoose.model('BankBalance', BankBalanceSchema);
     const cashBalance = new CashBalance({ user: user._id, balance: 0 });
     const bankBalance = new BankBalance({ user: user._id, balance: 0 });
-    return NextResponse.json({ message: 'User registered successfully' }, { status: 201 });
+    await cashBalance.save();
+    await bankBalance.save();
+    const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '4320h' });
+    return NextResponse.json({ message: 'User registered successfully', token: token }, { status: 200 });
   } catch (error) {
     console.error('Error registering user:', error);
     return NextResponse.json({ message: 'Error registering user' }, { status: 500 });

@@ -5,10 +5,13 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
 import "./page.css"
+import { useAuth } from '../contexts/authContext';
+
 
 export default function Account() {
   const [isLogin, setIsLogin] = useState(true)
   const router = useRouter()
+  const { token, login, logout } = useAuth();
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -27,8 +30,9 @@ export default function Account() {
     })
 
     if (response.ok) {
-      console.log(await response.json());
+      const res = await response.json()
       console.log("Great Success!");
+      login(res.token)
       router.push('/dashboard')
     } else {
       console.log(await response.json());
@@ -59,7 +63,8 @@ export default function Account() {
     })
 
     if (response.ok) {
-      console.log(await response.json());
+      const res = await response.json()
+      login(res.token)
       console.log("Great Success!");
       router.push('/dashboard')
     } else {

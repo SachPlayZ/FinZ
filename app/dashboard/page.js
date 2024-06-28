@@ -1,11 +1,46 @@
+"use client"
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { Progress } from "@/components/ui/progress"
+import { useState, useEffect } from "react"
+import { useAuth } from "../contexts/authContext"
+import { useRouter } from "next/navigation"
+import { set } from "mongoose"
+
 
 export default function page() {
+    const { token } = useAuth();
+    const [userId, setUserId] = useState('');
+    const [cashBalance, setCashBalance] = useState('');
+    const [bankBalance, setBankBalance] = useState('');
+  
+    useEffect(() => {
+      const getId = async (token) => {
+        if (token) {
+          try {
+            const response = await fetch('/api/balance', {
+              method: 'POST',
+              headers: {
+                'Authorization': token
+              }
+            });
+            const data = await response.json();
+            const { cBalance, bBalance } = data;
+            setCashBalance(cBalance);
+            setBankBalance(bBalance);
+          } catch (error) {
+            console.error('Error fetching user ID:', error);
+          }
+        }
+      };
+  
+      getId(token); // Call the function to fetch user ID
+
+    }, [token]);
+ 
   return (
     (<div className="flex flex-col h-screen bg-background text-red-800">
       <header className="flex items-center justify-between px-4 py-3 border-b bg-card">
@@ -41,30 +76,20 @@ export default function page() {
         className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-auto">
         <Card className="col-span-1 md:col-span-2 lg:col-span-1">
           <CardHeader className="flex items-center justify-between">
-            <TooltipProvider>
-              <CardTitle>Current Balance</CardTitle>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <InfoIcon className="w-5 h-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className="grid gap-2">
-                    <div className="flex items-center justify-between">
-                      <span>Cash Balance:</span> <br/>
-                      <span>$2,450.00</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Bank Balance:</span> <br/>
-                      <span>$5,320.00</span>
-                    </div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+              <CardTitle>Current Balance
+              </CardTitle>
+              <div className="text-4xl font-bold">₹{bankBalance+cashBalance}</div>
           </CardHeader>
-          <CardContent className="text-4xl font-bold">$7,770.00</CardContent>
+          <CardContent>
+          <div className="flex items-center justify-between">
+              <span>Cash Balance</span>
+              <span>₹{cashBalance}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Bank Balance</span>
+              <span>₹{bankBalance}</span>
+            </div>
+          </CardContent>
         </Card>
         <Card className="col-span-1 md:col-span-1 lg:col-span-1">
           <CardHeader className="flex items-center justify-between">

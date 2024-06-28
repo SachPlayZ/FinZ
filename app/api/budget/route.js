@@ -3,7 +3,6 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '../../_middleware/mongodb';
 import mongoose from 'mongoose';
-import { UserSchema } from '@/app/_models/schema';
 import { BudgetSchema } from '@/app/_models/schema';
 
 async function posthandler(req) {
