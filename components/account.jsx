@@ -27,7 +27,7 @@ export function Account() {
               </Button>
             </form>
             <div className="text-sm text-muted-foreground">
-              Don't have an account?{" "}
+              Dont have an account?{" "}
               <button
                 type="button"
                 onClick={() => setIsLogin(false)}
