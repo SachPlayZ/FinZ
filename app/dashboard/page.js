@@ -42,8 +42,8 @@ export default function Page() {
     }, [token]);
  
   return (
-    (<div className="flex flex-col h-screen bg-background text-red-800">
-      <header className="flex items-center justify-between px-4 py-3 border-b bg-card">
+    (<div className="flex flex-col h-screen bg-black text-orange-600">
+      <header className="flex items-center bg-black justify-between px-4 py-3">
         <Link
           href="#"
           className="flex items-center gap-2 text-lg font-bold"
@@ -74,7 +74,7 @@ export default function Page() {
       </header>
       <main
         className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-auto">
-        <Card className="col-span-1 md:col-span-2 lg:col-span-1">
+        <Card className="border-orange-600 col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
               <CardTitle>Current Balance
               </CardTitle>
@@ -91,7 +91,7 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-        <Card className="col-span-1 md:col-span-1 lg:col-span-1">
+        <Card className="border-orange-600 col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>This Months Spending</CardTitle>
             <div className="text-sm text-muted-foreground">$1,250.00</div>
@@ -115,7 +115,7 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-        <Card className="col-span-1 md:col-span-1 lg:col-span-1">
+        <Card className="border-orange-600 col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>This Months Income</CardTitle>
             <div className="text-sm text-muted-foreground">$3,500.00</div>
@@ -131,7 +131,7 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-        <Card className="col-span-1 md:col-span-2 lg:col-span-2">
+        <Card className="border-orange-600 col-span-1 md:col-span-2 lg:col-span-2 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>Recent Transactions</CardTitle>
             <Link
@@ -198,7 +198,7 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-        <Card className="col-span-1 md:col-span-2 lg:col-span-1">
+        <Card className="border-orange-600 col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>Budget Details</CardTitle>
             <div className="text-sm text-red-500 font-medium">Over Budget</div>
@@ -216,7 +216,7 @@ export default function Page() {
               <span>Remaining</span>
               <span className="text-red-500">-$250.00</span>
             </div>
-            <Progress value={112.5} aria-label="112.5% of budget spent" />
+            <Progress className="bg-white" value={50} aria-label="112.5% of budget spent" />
           </CardContent>
         </Card>
       </main>
@@ -233,7 +233,7 @@ function BarChartIcon(props) {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
+      stroke="#ea580c"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round">
@@ -361,7 +361,7 @@ function UserIcon(props) {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
+      stroke="#ea580c"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round">
