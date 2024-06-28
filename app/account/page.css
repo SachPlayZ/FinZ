@@ -1,0 +1,12 @@
+/* styles/fonts.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+.font-heading {
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+.font-body {
+  font-family: 'Space Mono', monospace;
+}
