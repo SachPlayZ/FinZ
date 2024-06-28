@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/authContext"
 import { useRouter } from "next/navigation"
-import { set } from "mongoose"
+
 
 
 export default function page() {
