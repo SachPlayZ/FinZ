@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export default function Home() {
   return (
@@ -32,10 +33,10 @@ export default function Home() {
                   
                 </div>
               </div>
-              <img
+              <Image
                 src="/finhero.png"
-                width="400"
-                height="310"
+                width={550}
+                height={310}
                 alt="Hero"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last animate-fade-in-delay-300"
               />
@@ -51,7 +52,7 @@ export default function Home() {
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Manage Your Expenses with Ease</h2>
                   <p className="max-w-[600px] text-[#ccc] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                     Our Expenses Management app offers a range of features to help you stay on top of your finances.
-                    From automatic categorization to custom budgeting, we've got you covered.
+                    From automatic categorization to custom budgeting, weve got you covered.
                   </p>
                 </div>
                 <ul className="grid gap-2 py-4">
@@ -83,10 +84,10 @@ export default function Home() {
                   
                 </div>
               </div>
-              <img
+              <Image
                 src="/finhero2.png"
-                width="550"
-                height="310"
+                width={550}
+                height={310}
                 alt="Features"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
               />
@@ -98,7 +99,7 @@ export default function Home() {
             <div className="space-y-3">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Take Control of Your Finances</h2>
               <p className="mx-auto max-w-[600px] text-[#333] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Sign up for our Newsletter and get fresh news straight into your inbox. It's free to get
+                Sign up for our Newsletter and get fresh news straight into your inbox. Its free to get
                 started!
               </p>
             </div>

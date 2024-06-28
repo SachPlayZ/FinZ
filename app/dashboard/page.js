@@ -68,7 +68,7 @@ export default function page() {
         </Card>
         <Card className="col-span-1 md:col-span-1 lg:col-span-1">
           <CardHeader className="flex items-center justify-between">
-            <CardTitle>This Month's Spending</CardTitle>
+            <CardTitle>This Months Spending</CardTitle>
             <div className="text-sm text-muted-foreground">$1,250.00</div>
           </CardHeader>
           <CardContent>
@@ -92,7 +92,7 @@ export default function page() {
         </Card>
         <Card className="col-span-1 md:col-span-1 lg:col-span-1">
           <CardHeader className="flex items-center justify-between">
-            <CardTitle>This Month's Income</CardTitle>
+            <CardTitle>This Months Income</CardTitle>
             <div className="text-sm text-muted-foreground">$3,500.00</div>
           </CardHeader>
           <CardContent>
