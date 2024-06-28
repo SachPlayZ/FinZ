@@ -41,8 +41,16 @@ export default function Account() {
     const formData = new FormData(event.target)
     const data = Object.fromEntries(formData.entries())
 
-    // Send data to the backend
-    const response = await fetch('/api/signup', {
+    console.log(data)
+    if (data.password === data.confirmPassword) {
+      delete data.confirmPassword
+    }
+    else {
+      console.log("Passwords do not match")
+      return
+    }
+    console.log(data)
+    const response = await fetch('/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -51,9 +59,12 @@ export default function Account() {
     })
 
     if (response.ok) {
-      // Handle successful sign up
+      console.log(await response.json());
+      console.log("Great Success!");
+      router.push('/dashboard')
     } else {
-      // Handle sign up error
+      console.log(await response.json());
+      console.log(":'(");
     }
   }
 
