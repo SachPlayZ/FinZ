@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation"
 
 
 
-export default function page() {
+export default function Page() {
     const { token } = useAuth();
     const [userId, setUserId] = useState('');
     const [cashBalance, setCashBalance] = useState('');
