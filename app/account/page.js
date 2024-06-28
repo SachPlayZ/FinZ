@@ -13,10 +13,10 @@ export default function Component() {
   return (
     <div className="flex h-screen w-full items-center justify-center bg-[#000] px-4">
       <div className="w-full max-w-md rounded-lg border border-[#ff6b00] bg-[#000] p-6 shadow-lg">
-        <div className="flex items-center justify-center pb-6">
+        <Link href="/" className="flex items-center justify-center pb-6">
           <MountainIcon className="h-8 w-8 text-[#ff6b00]" />
           <span className="ml-2 text-2xl font-bold text-[#ff6b00]">FinZ</span>
-        </div>
+        </Link>
         <div className="mb-6 flex gap-4 justify-center">
           <Button
             onClick={() => setActiveTab("login")}
@@ -50,7 +50,7 @@ export default function Component() {
             >
               <form className="space-y-4">
                 <div className="space-y-1">
-                  <Label htmlFor="email">Email</Label>
+                  <Label className="text-[#ff6b00]" htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -59,7 +59,7 @@ export default function Component() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="password">Password</Label>
+                  <Label className="text-[#ff6b00]" htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -91,7 +91,7 @@ export default function Component() {
             >
               <form className="space-y-4">
                 <div className="space-y-1">
-                  <Label htmlFor="name">Name</Label>
+                  <Label className="text-[#ff6b00]" htmlFor="name">Name</Label>
                   <Input
                     id="name"
                     type="text"
@@ -100,7 +100,7 @@ export default function Component() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="email">Email</Label>
+                  <Label className="text-[#ff6b00]" htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -109,7 +109,7 @@ export default function Component() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="password">Password</Label>
+                  <Label className="text-[#ff6b00]" htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"

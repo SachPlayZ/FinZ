@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import './globals.css'
 import ClientNavbar from './_components/ClientNavbar';
+import Transition from './transition';
 
 export const metadata = {
   title: 'FinZ',
@@ -32,7 +33,7 @@ export default function Layout({ children }) {
         )}
       >
         <ClientNavbar />
-        {children}
+        <Transition>{children}</Transition>
       </body>
     </html>
   )

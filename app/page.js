@@ -26,7 +26,7 @@ export default function Home() {
                   <Link
                     href="/account"
                     className="inline-flex h-10 items-center justify-center rounded-md bg-[#ff6b6b] px-8 text-sm font-medium text-[#000] shadow transition-colors hover:bg-[#ff6b6b]/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                    prefetch={false}
+                    prefetch={true}
                   >
                     Sign Up
                   </Link>
@@ -77,7 +77,7 @@ export default function Home() {
                   <Link
                     href="/account"
                     className="inline-flex h-10 items-center justify-center rounded-md bg-[#ff6b6b] px-8 text-sm font-medium text-[#000] shadow transition-colors hover:bg-[#ff6b6b]/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                    prefetch={false}
+                    prefetch={true}
                   >
                     Sign Up
                   </Link>
