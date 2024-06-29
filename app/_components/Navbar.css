@@ -21,7 +21,7 @@
     transform: scaleX(1);
   }
   
-  .fixed {
+  .fixed-af {
     width: 64px;
     height: 100%;
   }
