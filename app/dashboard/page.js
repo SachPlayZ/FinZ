@@ -10,10 +10,11 @@ import { useAuth } from "../contexts/authContext"
 import { useRouter } from "next/navigation"
 
 export default function Page() {
-  const { token, logout, username } = useAuth();
+  const { token, logout } = useAuth();
   const [userId, setUserId] = useState('');
   const [cashBalance, setCashBalance] = useState('');
   const [bankBalance, setBankBalance] = useState('');
+  const [username, setUsername] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const router = useRouter();
@@ -33,9 +34,10 @@ export default function Page() {
             }
           });
           const data = await response.json();
-          const { cBalance, bBalance } = data;
+          const { cBalance, bBalance, name } = data;
           setCashBalance(cBalance);
           setBankBalance(bBalance);
+          setUsername(name);
         } catch (error) {
           console.error('Error fetching user ID:', error);
         }
@@ -86,7 +88,7 @@ export default function Page() {
               <span className="sr-only">Profile</span>
             </Button>
             {isDropdownOpen && (
-              <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-black rounded-md shadow-lg py-2">
+              <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-slate-950 rounded-md shadow-lg py-2">
                 <div className="px-4 py-2 text-sm text-orange-600">
                   {username}
                 </div>
@@ -101,7 +103,7 @@ export default function Page() {
           </div>
           <Link
             href="#"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground bg-black hover:bg-slate-800 rounded-full"
             prefetch={false}>
             <BarChartIcon className="w-6 h-6" />
             <span className="sr-only">Analysis</span>
