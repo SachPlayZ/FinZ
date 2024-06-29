@@ -28,10 +28,12 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
+import { set } from "mongoose"
 
 
 export default function Page() {
   const [date, setDate] = useState(null);
+  const [spending, setSpending] = useState([]);
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState('');
   const [mode, setMode] = useState('');
@@ -45,6 +47,9 @@ export default function Page() {
   const router = useRouter();
   const [tags, setTags] = useState([])
   const [type, setType] = useState('');
+  const [totalSpending, setTotalSpending] = useState('0.00');
+  const [totalIncome, setTotalIncome] = useState('0.00');
+  const [income, setIncome] = useState([]);
   const addTag = (tag) => {
     if (tag.trim() !== "") {
       setTags([...tags, tag.trim()])
@@ -57,6 +62,43 @@ export default function Page() {
   if (!token) {
     router.push('/account');
   }
+
+  const getIncome = async (token) => {
+    if (token) {
+      try {
+        const response = await fetch('/api/income', {
+          method: 'POST',
+          headers: {
+            'Authorization': token
+          }
+        });
+        const data = await response.json();
+        setIncome(data);
+      } catch (error) {
+        console.error('Error fetching income:', error);
+      }
+    }
+  }
+
+
+  const getSpending = async (token) => {
+    if (token) {
+      try {
+        const response = await fetch('/api/spending', {
+          method: 'POST',
+          headers: {
+            'Authorization': token
+          }
+        });
+        const data = await response.json();
+        setSpending(data);
+      } catch (error) {
+        console.error('Error fetching spending:', error);
+      }
+    }
+  };
+
+
   const getBalance = async (token) => {
     if (token) {
       try {
@@ -99,14 +141,42 @@ export default function Page() {
       });
       const data = await response.json();
       console.log(data);
-      await getBalance(token);  // Update balance after transaction
+      await getBalance(token); 
+      await getSpending(token);
+      await getIncome(token);
     } catch (error) {
       console.error('Error handling transaction:', error);
     }
   };
+  useEffect(() => {
+    const total = spending.reduce((acc, item) => {
+      const amount = parseFloat(item.total);
+      if (!isNaN(amount)) {
+        return acc + amount;
+      }
+      return acc;
+    }, 0).toFixed(2);
+
+    setTotalSpending(total);
+  }, [spending]);
+
+  useEffect(() => {
+    const total = income.reduce((acc, item) => {
+      const amount = parseFloat(item.total);
+      if (!isNaN(amount)) {
+        return acc + amount;
+      }
+      return acc;
+    }, 0).toFixed(2);
+
+    setTotalIncome(total);
+  }, [income]);
+
   
   useEffect(() => {
+    getSpending(token);
     getBalance(token);
+    getIncome(token);
   
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -383,41 +453,33 @@ export default function Page() {
         <Card className="md:border-[#ff6b6b] border-transparent col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>This Months Spending</CardTitle>
-            <div className="text-sm text-muted-foreground">$1,250.00</div>
+            <div className="text-sm text-muted-foreground">₹{totalSpending}</div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <span>Groceries</span>
-              <span>$450.00</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Utilities</span>
-              <span>$200.00</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Transportation</span>
-              <span>$150.00</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Entertainment</span>
-              <span>$350.00</span>
-            </div>
+          {spending?
+          spending.map((item) => (
+        <div key={item.category} className="flex items-center justify-between">
+          <span>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+          <span>₹{item.total}</span>
+        </div>
+      )):
+      <div>No transactions found...</div>
+    }
+            
           </CardContent>
         </Card>
         <Card className="border-[#ff6b6b] col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>This Months Income</CardTitle>
-            <div className="text-sm text-muted-foreground">$3,500.00</div>
+            <div className="text-sm text-muted-foreground">₹{totalIncome}</div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <span>Salary</span>
-              <span>$3,000.00</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Freelance</span>
-              <span>$500.00</span>
-            </div>
+          {income.map((item) => (
+        <div key={item.category} className="flex items-center justify-between">
+          <span>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+          <span>₹{item.total}</span>
+        </div>
+      ))}
           </CardContent>
         </Card>
         <Card className="md:border-[#ff6b6b] border-transparent col-span-1 md:col-span-2 lg:col-span-2 bg-slate-950 text-white">

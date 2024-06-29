@@ -18,11 +18,11 @@ async function posthandler(req) {
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
     const Transaction = mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema);
-    const transactions = await Transaction.find({ user: id, type: 'expense' }).exec();
+    const transactions = await Transaction.find({ user: id, type: 'income' }).exec();
     if (!transactions) {
         return NextResponse.json({ message: 'No transactions found' }, { status: 404 });
     }
-    const expensesByCategory = transactions.reduce((acc, txn) => {
+    const incomeByCategory = transactions.reduce((acc, txn) => {
       if (!acc[txn.category]) {
         acc[txn.category] = 0;
       }
@@ -30,7 +30,7 @@ async function posthandler(req) {
       return acc;
     }, {});
 
-    const formattedResults = Object.entries(expensesByCategory).map(([category, total]) => ({
+    const formattedResults = Object.entries(incomeByCategory).map(([category, total]) => ({
       category,
       total: total.toFixed(2) 
     }));
