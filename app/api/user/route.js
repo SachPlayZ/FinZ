@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '../../_middleware/mongodb';
 import { verifyToken } from '@/app/_middleware/auth';
-import { User } from '@/app/_models/schema';
+import { UserSchema } from '@/app/_models/schema';
 
 async function postHandler(req) {
     await connectToDatabase();
@@ -16,7 +16,7 @@ async function postHandler(req) {
     }
 
     try {
-        const user = await User.findById(id);
+        const user = await UserSchema.findById(id);
         if (!user) {
             return NextResponse.json({ message: 'User not found' }, { status: 404 });
         }

@@ -112,10 +112,9 @@ const BankBalanceSchema = new mongoose.Schema({
     balance: Number
 });
 
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 export { 
-    User, 
+    UserSchema, 
     TransactionSchema, 
     TransferSchema,
     BudgetSchema,
