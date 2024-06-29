@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectToDatabase from "@/app/_middleware/mongodb";
 import mongoose from "mongoose";
 import { TransactionSchema, CashBalanceSchema, BankBalanceSchema } from "@/app/_models/schema";
+import { verifyToken } from "@/app/_middleware/auth";
 
 const Transaction = mongoose.models.Transactions || mongoose.model('Transactions', TransactionSchema);
 const CashBalance = mongoose.models.CashBalance || mongoose.model('CashBalance', CashBalanceSchema);
@@ -17,11 +18,15 @@ async function posthandler(req) {
         return NextResponse.json({ message: 'Invalid JSON' }, { status: 400 });
     }
 
-    const { user, amount, category, mode, type, description, date, tags } = body;
-    if (!user || !amount || !category || !mode || !type || !date) {
+    const { token, amount, category, mode, type, description, date, tags } = body;
+    if (!token || !amount || !category || !mode || !type || !date) {
         return NextResponse.json({ message: 'Missing fields' }, { status: 400 });
     }
 
+    const user = verifyToken(token);
+    if (!user) {
+        return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
+    }
     try {
         const transaction = new Transaction({ user, amount, category, mode, type, description, date, tags });
         await transaction.save();
@@ -29,10 +34,10 @@ async function posthandler(req) {
             const cashBalance = await CashBalance.findOne({ user });
             const bankBalance = await BankBalance.findOne({ user });
             if (mode === 'cash') {
-                cashBalance.balance = cashBalance.balance - amount;
+                cashBalance.balance = Number(cashBalance.balance) - Number(amount);
                 await cashBalance.save();
             } else {
-                bankBalance.balance = bankBalance.balance - amount;
+                bankBalance.balance = Number(bankBalance.balance) - Number(amount);
                 await bankBalance.save();
             }
         }
@@ -40,10 +45,10 @@ async function posthandler(req) {
             const cashBalance = await CashBalance.findOne({ user });
             const bankBalance = await BankBalance.findOne({ user });
             if (mode === 'cash') {
-                cashBalance.balance = cashBalance.balance + amount;
+                cashBalance.balance = Number(cashBalance.balance) + Number(amount);
                 await cashBalance.save();
             } else {
-                bankBalance.balance = bankBalance.balance + amount;
+                bankBalance.balance = Number(bankBalance.balance) + Number(amount);
                 await bankBalance.save();
             }
         }

@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogClose
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
@@ -43,7 +44,7 @@ export default function Page() {
   const dropdownRef = useRef(null);
   const router = useRouter();
   const [tags, setTags] = useState([])
-  const [type, setType] = useState('expense');
+  const [type, setType] = useState('');
   const addTag = (tag) => {
     if (tag.trim() !== "") {
       setTags([...tags, tag.trim()])
@@ -56,63 +57,70 @@ export default function Page() {
   if (!token) {
     router.push('/account');
   }
-
+  const getBalance = async (token) => {
+    if (token) {
+      try {
+        const response = await fetch('/api/balance', {
+          method: 'POST',
+          headers: {
+            'Authorization': token
+          }
+        });
+        const data = await response.json();
+        const { cBalance, bBalance, name } = data;
+        setCashBalance(cBalance);
+        setBankBalance(bBalance);
+        setUsername(name);
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+      }
+    }
+  };
+  
   const handleTransaction = async () => {
     const txn = JSON.stringify({
+      token: token,
       date: date,
+      type: type,
       amount: amount,
       category: category,
-      paymentMode: mode,
+      mode: mode,
       description: description,
       tags: tags
-    })
-    // const response = await fetch('/api/txn', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': token
-    //   },
-    //   body: 
-    // });
-    console.log(txn);
-    // const data = await response.json();
-    // console.log(data);
-  }
-
+    });
+  
+    try {
+      const response = await fetch('/api/txn', {
+        method: 'POST',
+        headers: {
+          'Authorization': token
+        },
+        body: txn
+      });
+      const data = await response.json();
+      console.log(data);
+      await getBalance(token);  // Update balance after transaction
+    } catch (error) {
+      console.error('Error handling transaction:', error);
+    }
+  };
+  
   useEffect(() => {
-    const getId = async (token) => {
-      if (token) {
-        try {
-          const response = await fetch('/api/balance', {
-            method: 'POST',
-            headers: {
-              'Authorization': token
-            }
-          });
-          const data = await response.json();
-          const { cBalance, bBalance, name } = data;
-          setCashBalance(cBalance);
-          setBankBalance(bBalance);
-          setUsername(name);
-        } catch (error) {
-          console.error('Error fetching user ID:', error);
-        }
-      }
-    };
-
-    getId(token);
-
+    getBalance(token);
+  
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
     };
-
+  
     document.addEventListener('mousedown', handleClickOutside);
-
+  
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [token]);
+  
 
   const handleUserIconClick = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -175,7 +183,7 @@ export default function Page() {
                 <DialogTitle className="">Add Transaction</DialogTitle>
               </DialogHeader>
               <div className="grid gap-2 py-2">
-                <ToggleGroup variant="outline" type="single" value={type} onValueChange={setType} className="w-full">
+                <ToggleGroup variant="outline" type="single" onValueChange={setType} className="w-full">
                   <div className="flex w-full gap-2">
                     <ToggleGroupItem
                       className={`flex-1 text-center ${type === 'income' ? 'bg-slate-900 text-[#ff6b6b]' : 'bg-black text-[#ff6b6b]'} border border-[#ff6b6b]`}
@@ -196,7 +204,7 @@ export default function Page() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
-                    <Label htmlFor="date" className="">
+                    <Label htmlFor="date" className="pt-2 flex items-center">
                       <CalendarIcon className="mr-2 h-5 w-5" />
                       Date
                     </Label>
@@ -225,7 +233,7 @@ export default function Page() {
                     </Popover>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="amount" className="">
+                    <Label htmlFor="amount" className="pt-2 flex items-center">
                       <DollarSignIcon className="mr-2 h-5 w-5" />
                       Amount
                     </Label>
@@ -240,7 +248,7 @@ export default function Page() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="category" className="">
+                    <Label htmlFor="category" className="pt-2 flex items-center">
                       <ListIcon className="mr-2 h-5 w-5" />
                       Category
                     </Label>
@@ -248,28 +256,28 @@ export default function Page() {
                       <SelectTrigger id="category" className="bg-primary">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                      <SelectContent className="bg-black text-[#ff6b6b] ">
-                        <SelectItem value="groceries" className="hover:bg-slate-900">
-                          <ShoppingBagIcon className="mr-2 h-5 w-5" />
-                          Groceries
+                      <SelectContent className="bg-black text-[#ff6b6b]">
+                        <SelectItem value="groceries" className="flex items-center w-full">
+                          <ShoppingBagIcon className="mr-2 h-5 w-5 inline-block" />
+                          <span className="inline-block">Groceries</span>
                         </SelectItem>
-                        <SelectItem value="utilities" className="hover:bg-slate-900">
-                          <PowerIcon className="mr-2 h-5 w-5" />
-                          Utilities
+                        <SelectItem value="utilities" className="flex items-center w-full">
+                          <PowerIcon className="mr-2 h-5 w-5 inline-block" />
+                          <span className="inline-block">Utilities</span>
                         </SelectItem>
-                        <SelectItem value="entertainment" className="hover:bg-slate-900">
-                          <PopcornIcon className="mr-2 h-5 w-5" />
-                          Entertainment
+                        <SelectItem value="entertainment" className="flex items-center w-full">
+                          <PopcornIcon className="mr-2 h-5 w-5 inline-block" />
+                          <span className="inline-block">Entertainment</span>
                         </SelectItem>
-                        <SelectItem value="transportation" className="hover:bg-slate-900">
-                          <CarIcon className="mr-2 h-5 w-5" />
-                          Transportation
+                        <SelectItem value="transportation" className="flex items-center w-full">
+                          <CarIcon className="mr-2 h-5 w-5 inline-block" />
+                          <span className="inline-block">Transportation</span>
                         </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="payment-mode" className="">
+                    <Label htmlFor="payment-mode" className="pt-2 flex items-center">
                       <CreditCardIcon className="mr-2 h-5 w-5" />
                       Payment Mode
                     </Label>
@@ -277,24 +285,21 @@ export default function Page() {
                       <SelectTrigger id="payment-mode" className="bg-primary">
                         <SelectValue placeholder="Select payment mode" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="cash">
-                          <DollarSignIcon className="mr-2 h-5 w-5" />Cash
+                      <SelectContent className="bg-black text-[#ff6b6b]">
+                        <SelectItem value="cash" className="flex items-center w-full">
+                          <DollarSignIcon className="mr-2 h-5 w-5 inline-block" />
+                          <span className="inline-block">Cash</span>
                         </SelectItem>
-                        <SelectItem value="card">
-                          <CreditCardIcon className="mr-2 h-5 w-5" />
-                          Card
-                        </SelectItem>
-                        <SelectItem value="bank-transfer">
-                          <BanknoteIcon className="mr-2 h-5 w-5" />
-                          Bank Transfer
+                        <SelectItem value="bank" className="flex items-center w-full">
+                          <CreditCardIcon className="mr-2 h-5 w-5 inline-block" />
+                          <span className="inline-block">Bank</span>
                         </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="">
+                  <Label htmlFor="description" className="pt-2 flex items-center">
                     <InfoIcon className="mr-2 h-5 w-5" />
                     Description
                   </Label>
@@ -306,7 +311,7 @@ export default function Page() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tags" className="">
+                  <Label htmlFor="tags" className="pt-2 flex items-center">
                     <TagIcon className="mr-2 h-5 w-5" />
                     Tags
                   </Label>
@@ -320,7 +325,7 @@ export default function Page() {
                         e.currentTarget.value = ""
                       }
                     }}
-                    className="rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+                    className="rounded-md border border-input bg-slate-900 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
                   <div className="flex flex-wrap items-center gap-2">
                     {tags.map((tag) => (
                       <div
@@ -341,6 +346,7 @@ export default function Page() {
                 </div>
               </div>
               <DialogFooter>
+                <DialogClose asChild>
                 <Button
                   type="submit"
                   variant="solid"
@@ -349,6 +355,7 @@ export default function Page() {
                 >
                   Save Transaction
                 </Button>
+                </DialogClose>
               </DialogFooter>
             </DialogContent>
           </Dialog>
