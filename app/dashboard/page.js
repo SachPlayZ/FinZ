@@ -27,6 +27,10 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 
 export default function Page() {
   const [date, setDate] = useState(null);
+  const [amount, setAmount] = useState(0);
+  const [category, setCategory] = useState('');
+  const [mode, setMode] = useState('');
+  const [description, setDescription] = useState('');
   const { token, logout } = useAuth();
   const [userId, setUserId] = useState('');
   const [cashBalance, setCashBalance] = useState('');
@@ -47,6 +51,25 @@ export default function Page() {
 
   if (!token) {
     router.push('/account');
+  }
+
+  const handleTransaction = async () => {
+    const response = await fetch('/api/txn', {
+      method: 'POST',
+      headers: {
+        'Authorization': token
+      },
+      body: JSON.stringify({
+        date: date,
+        amount: amount,
+        category: category,
+        paymentMode: mode,
+        description: description,
+        tags: tags
+      })
+    });
+    const data = await response.json();
+    console.log(data);
   }
 
   useEffect(() => {
@@ -171,6 +194,7 @@ export default function Page() {
                           selected={date}
                           onSelect={setDate}
                           initialFocus
+                          className="bg-black text-[#ff6b6b] focus:text-[#722f2f] focus:bg-white active:bg-white active:text-[#722f2f]"
                         />
                       </PopoverContent>
                     </Popover>
@@ -197,20 +221,20 @@ export default function Page() {
                       <SelectTrigger id="category" className="bg-primary">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="groceries">
+                      <SelectContent className="bg-black text-[#ff6b6b] ">
+                        <SelectItem value="groceries" className="hover:bg-slate-900">
                           <ShoppingBagIcon className="mr-2 h-5 w-5" />
                           Groceries
                         </SelectItem>
-                        <SelectItem value="utilities">
+                        <SelectItem value="utilities" className="hover:bg-slate-900">
                           <PowerIcon className="mr-2 h-5 w-5" />
                           Utilities
                         </SelectItem>
-                        <SelectItem value="entertainment">
+                        <SelectItem value="entertainment" className="hover:bg-slate-900">
                           <PopcornIcon className="mr-2 h-5 w-5" />
                           Entertainment
                         </SelectItem>
-                        <SelectItem value="transportation">
+                        <SelectItem value="transportation" className="hover:bg-slate-900">
                           <CarIcon className="mr-2 h-5 w-5" />
                           Transportation
                         </SelectItem>

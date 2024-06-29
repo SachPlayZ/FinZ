@@ -22,3 +22,5 @@ async function posthandler(req) {
     transactions.sort((a, b) => b.date - a.date);
     return NextResponse.json(transactions, { status: 200 });
 }
+
+export { posthandler as POST };
