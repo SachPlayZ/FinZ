@@ -118,7 +118,7 @@ export default function Page() {
       }
     }
   };
-  
+
   const handleTransaction = async () => {
     const txn = JSON.stringify({
       token: token,
@@ -130,7 +130,7 @@ export default function Page() {
       description: description,
       tags: tags
     });
-  
+
     try {
       const response = await fetch('/api/txn', {
         method: 'POST',
@@ -141,7 +141,7 @@ export default function Page() {
       });
       const data = await response.json();
       console.log(data);
-      await getBalance(token); 
+      await getBalance(token);
       await getSpending(token);
       await getIncome(token);
     } catch (error) {
@@ -172,25 +172,25 @@ export default function Page() {
     setTotalIncome(total);
   }, [income]);
 
-  
+
   useEffect(() => {
     getSpending(token);
     getBalance(token);
     getIncome(token);
-  
+
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
     };
-  
+
     document.addEventListener('mousedown', handleClickOutside);
-  
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [token]);
-  
+
 
   const handleUserIconClick = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -417,14 +417,14 @@ export default function Page() {
               </div>
               <DialogFooter>
                 <DialogClose asChild>
-                <Button
-                  type="submit"
-                  variant="solid"
-                  className="bg-primary"
-                  onClick={handleTransaction}
-                >
-                  Save Transaction
-                </Button>
+                  <Button
+                    type="submit"
+                    variant="solid"
+                    className="bg-primary"
+                    onClick={handleTransaction}
+                  >
+                    Save Transaction
+                  </Button>
                 </DialogClose>
               </DialogFooter>
             </DialogContent>
@@ -450,23 +450,25 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-        <Card className="md:border-[#ff6b6b] border-transparent col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
+        <Card className="border-[#ff6b6b] col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>This Months Spending</CardTitle>
             <div className="text-sm text-muted-foreground">₹{totalSpending}</div>
           </CardHeader>
-          <CardContent>
-          {spending?
-          spending.map((item) => (
-        <div key={item.category} className="flex items-center justify-between">
-          <span>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
-          <span>₹{item.total}</span>
-        </div>
-      )):
-      <div>No transactions found...</div>
-    }
-            
+            {spending && spending.length > 0 ? (
+              <CardContent>
+              {spending.map((item) => (
+                <div key={item.category} className="flex items-center justify-between py-2">
+                  <span>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+                  <span>₹{item.total}</span>
+                </div>
+              ))}
           </CardContent>
+            ) : (
+              <CardContent className="flex flex-col items-center justify-center text-muted-foreground">
+              <div clasName="text-center text-muted-foreground">No Transactions Found</div>
+              </CardContent>
+            )}
         </Card>
         <Card className="border-[#ff6b6b] col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
@@ -474,12 +476,17 @@ export default function Page() {
             <div className="text-sm text-muted-foreground">₹{totalIncome}</div>
           </CardHeader>
           <CardContent>
-          {income.map((item) => (
-        <div key={item.category} className="flex items-center justify-between">
-          <span>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
-          <span>₹{item.total}</span>
-        </div>
-      ))}
+            
+            {income && income.length > 0 ? (
+              income.map((item) => (
+              <div key={item.category} className="flex items-center justify-between py-2">
+                <span>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+                <span>₹{item.total}</span>
+              </div>
+            ))
+          ): (  
+            <div className="text-center text-muted-foreground">No Transactions Found</div>
+          )}
           </CardContent>
         </Card>
         <Card className="md:border-[#ff6b6b] border-transparent col-span-1 md:col-span-2 lg:col-span-2 bg-slate-950 text-white">
