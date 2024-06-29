@@ -23,6 +23,10 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
 
 
 export default function Page() {
@@ -32,14 +36,14 @@ export default function Page() {
   const [mode, setMode] = useState('');
   const [description, setDescription] = useState('');
   const { token, logout } = useAuth();
-  const [userId, setUserId] = useState('');
   const [cashBalance, setCashBalance] = useState('');
   const [bankBalance, setBankBalance] = useState('');
   const [username, setUsername] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const router = useRouter();
-  const [tags, setTags] = useState(["Yo", "Hello", "World", "Tag", "Example"])
+  const [tags, setTags] = useState([])
+  const [type, setType] = useState('expense');
   const addTag = (tag) => {
     if (tag.trim() !== "") {
       setTags([...tags, tag.trim()])
@@ -54,22 +58,24 @@ export default function Page() {
   }
 
   const handleTransaction = async () => {
-    const response = await fetch('/api/txn', {
-      method: 'POST',
-      headers: {
-        'Authorization': token
-      },
-      body: JSON.stringify({
-        date: date,
-        amount: amount,
-        category: category,
-        paymentMode: mode,
-        description: description,
-        tags: tags
-      })
-    });
-    const data = await response.json();
-    console.log(data);
+    const txn = JSON.stringify({
+      date: date,
+      amount: amount,
+      category: category,
+      paymentMode: mode,
+      description: description,
+      tags: tags
+    })
+    // const response = await fetch('/api/txn', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Authorization': token
+    //   },
+    //   body: 
+    // });
+    console.log(txn);
+    // const data = await response.json();
+    // console.log(data);
   }
 
   useEffect(() => {
@@ -169,6 +175,25 @@ export default function Page() {
                 <DialogTitle className="">Add Transaction</DialogTitle>
               </DialogHeader>
               <div className="grid gap-2 py-2">
+                <ToggleGroup variant="outline" type="single" value={type} onValueChange={setType} className="w-full">
+                  <div className="flex w-full gap-2">
+                    <ToggleGroupItem
+                      className={`flex-1 text-center ${type === 'income' ? 'bg-slate-900 text-[#ff6b6b]' : 'bg-black text-[#ff6b6b]'} border border-[#ff6b6b]`}
+                      value="income"
+                      aria-label="Toggle income"
+                    >
+                      Income
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                      className={`flex-1 text-center ${type === 'expense' ? 'bg-slate-900 text-[#ff6b6b]' : 'bg-black text-[#ff6b6b]'} border border-[#ff6b6b]`}
+                      value="expense"
+                      aria-label="Toggle expense"
+                    >
+                      Expense
+                    </ToggleGroupItem>
+                  </div>
+                </ToggleGroup>
+
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="date" className="">
@@ -208,7 +233,9 @@ export default function Page() {
                       id="amount"
                       type="number"
                       placeholder="0.00"
-                      className="bg-primary" />
+                      className="bg-primary"
+                      onBlur={(e) => setAmount(e.target.value)}
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -217,7 +244,7 @@ export default function Page() {
                       <ListIcon className="mr-2 h-5 w-5" />
                       Category
                     </Label>
-                    <Select>
+                    <Select onValueChange={setCategory}>
                       <SelectTrigger id="category" className="bg-primary">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
@@ -246,7 +273,7 @@ export default function Page() {
                       <CreditCardIcon className="mr-2 h-5 w-5" />
                       Payment Mode
                     </Label>
-                    <Select>
+                    <Select onValueChange={setMode}>
                       <SelectTrigger id="payment-mode" className="bg-primary">
                         <SelectValue placeholder="Select payment mode" />
                       </SelectTrigger>
@@ -274,7 +301,9 @@ export default function Page() {
                   <Input
                     id="description"
                     placeholder="Enter a description"
-                    className="bg-primary" />
+                    className="bg-primary"
+                    onBlur={(e) => setDescription(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="tags" className="">
@@ -315,7 +344,9 @@ export default function Page() {
                 <Button
                   type="submit"
                   variant="solid"
-                  className="bg-primary">
+                  className="bg-primary"
+                  onClick={handleTransaction}
+                >
                   Save Transaction
                 </Button>
               </DialogFooter>
