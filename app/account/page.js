@@ -12,7 +12,9 @@ export default function Account() {
   const [isLogin, setIsLogin] = useState(true)
   const router = useRouter()
   const { token, login, logout } = useAuth();
-
+  if(token) {
+    router.push('/dashboard')
+  }
   const handleLogin = async (event) => {
     event.preventDefault()
     const formData = new FormData(event.target)

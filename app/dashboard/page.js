@@ -5,60 +5,100 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { Progress } from "@/components/ui/progress"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAuth } from "../contexts/authContext"
 import { useRouter } from "next/navigation"
 
-
-
 export default function Page() {
-    const { token } = useAuth();
-    const [userId, setUserId] = useState('');
-    const [cashBalance, setCashBalance] = useState('');
-    const [bankBalance, setBankBalance] = useState('');
-  
-    useEffect(() => {
-      const getId = async (token) => {
-        if (token) {
-          try {
-            const response = await fetch('/api/balance', {
-              method: 'POST',
-              headers: {
-                'Authorization': token
-              }
-            });
-            const data = await response.json();
-            const { cBalance, bBalance } = data;
-            setCashBalance(cBalance);
-            setBankBalance(bBalance);
-          } catch (error) {
-            console.error('Error fetching user ID:', error);
-          }
-        }
-      };
-  
-      getId(token); // Call the function to fetch user ID
+  const { token, logout, username } = useAuth();
+  const [userId, setUserId] = useState('');
+  const [cashBalance, setCashBalance] = useState('');
+  const [bankBalance, setBankBalance] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const router = useRouter();
 
-    }, [token]);
- 
+  if (!token) {
+    router.push('/account');
+  }
+
+  useEffect(() => {
+    const getId = async (token) => {
+      if (token) {
+        try {
+          const response = await fetch('/api/balance', {
+            method: 'POST',
+            headers: {
+              'Authorization': token
+            }
+          });
+          const data = await response.json();
+          const { cBalance, bBalance } = data;
+          setCashBalance(cBalance);
+          setBankBalance(bBalance);
+        } catch (error) {
+          console.error('Error fetching user ID:', error);
+        }
+      }
+    };
+
+    getId(token);
+
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [token]);
+
+  const handleUserIconClick = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push('/account');
+  };
+
   return (
-    (<div className="flex flex-col h-screen bg-black text-orange-600">
+    <div className="flex flex-col h-screen bg-black text-orange-600">
       <header className="flex items-center bg-black justify-between px-4 py-3">
         <Link
           href="/"
-          className="flex items-center gap-2 text-lg font-bold"
+          className="flex items-center gap-2 text-lg font-bold "
           prefetch={false}>
           <WalletIcon className="w-6 h-6" />
           FinZ<span className="hidden md:inline">:Finance for GenZ</span>
         </Link>
-        <nav className="flex items-center gap-4">
-          <Link
-            href="#"
-            className="text-muted-foreground hover:text-foreground"
-            prefetch={false}>
-            <UserIcon className="w-6 h-6" />
-            <span className="sr-only">Profile</span>
-          </Link>
+        <nav className="relative flex items-center gap-4">
+          <div className="relative">
+            <Button
+              onClick={handleUserIconClick}
+              className="hover:text-foreground bg-black hover:bg-slate-800 rounded-full"
+            >
+              <UserIcon className="w-6 h-6" />
+              <span className="sr-only">Profile</span>
+            </Button>
+            {isDropdownOpen && (
+              <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-black rounded-md shadow-lg py-2">
+                <div className="px-4 py-2 text-sm text-orange-600">
+                  {username}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-orange-600 hover:bg-slate-900"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
           <Link
             href="#"
             className="text-muted-foreground hover:text-foreground"
@@ -76,12 +116,12 @@ export default function Page() {
         className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-auto">
         <Card className="border-orange-600 col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
-              <CardTitle>Current Balance
-              </CardTitle>
-              <div className="text-4xl font-bold">₹{bankBalance+cashBalance}</div>
+            <CardTitle>Current Balance
+            </CardTitle>
+            <div className="text-4xl font-bold">₹{bankBalance + cashBalance}</div>
           </CardHeader>
           <CardContent>
-          <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <span>Cash Balance</span>
               <span>₹{cashBalance}</span>
             </div>
@@ -91,7 +131,7 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-orange-600 col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
+        <Card className="md:border-orange-600 border-transparent col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>This Months Spending</CardTitle>
             <div className="text-sm text-muted-foreground">$1,250.00</div>
@@ -131,7 +171,7 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-orange-600 col-span-1 md:col-span-2 lg:col-span-2 bg-slate-950 text-white">
+        <Card className="md:border-orange-600 border-transparent col-span-1 md:col-span-2 lg:col-span-2 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>Recent Transactions</CardTitle>
             <Link
@@ -173,56 +213,62 @@ export default function Page() {
                 <div className="flex items-center gap-2">
                   <div
                     className="bg-muted rounded-full w-8 h-8 flex items-center justify-center">
-                    <TruckIcon className="w-5 h-5 text-muted-foreground" />
+                    <CreditCardIcon className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <div>
-                    <div className="font-medium">UPS</div>
-                    <div className="text-xs text-muted-foreground">Shipping</div>
+                    <div className="font-medium">Visa</div>
+                    <div className="text-xs text-muted-foreground">Payment</div>
                   </div>
                 </div>
-                <div className="text-red-500 font-medium">-$25.00</div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="bg-muted rounded-full w-8 h-8 flex items-center justify-center">
-                    <BriefcaseIcon className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <div className="font-medium">Freelance</div>
-                    <div className="text-xs text-muted-foreground">Income</div>
-                  </div>
-                </div>
-                <div className="text-green-500 font-medium">+$500.00</div>
+                <div className="text-red-500 font-medium">-$100.00</div>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card className="border-orange-600 col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>Budget Details</CardTitle>
-            <div className="text-sm text-red-500 font-medium">Over Budget</div>
+          <CardHeader>
+            <CardTitle>Spending vs. Income</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <span>Monthly Budget</span>
-              <span>$2,000.00</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Spent so far</span>
-              <span>$2,250.00</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Remaining</span>
-              <span className="text-red-500">-$250.00</span>
-            </div>
-            <Progress className="bg-white" value={50} aria-label="112.5% of budget spent" />
+            <TooltipProvider>
+              <div className="grid gap-4">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span>Income</span>
+                    <span>$3,500.00</span>
+                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Progress value={70} />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>70%</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span>Spending</span>
+                    <span>$1,250.00</span>
+                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Progress value={30} />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>30%</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
+            </TooltipProvider>
           </CardContent>
         </Card>
       </main>
-    </div>)
-  );
+    </div>
+  )
 }
+
 
 function BarChartIcon(props) {
   return (
@@ -389,5 +435,25 @@ function WalletIcon(props) {
         d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
       <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
     </svg>)
+  );
+}
+
+
+function CreditCardIcon (props) {
+  return(
+  <svg
+  {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    width="24"
+    height="24"
+  >
+    <path
+      fillRule="evenodd"
+      d="M4 3h16a3 3 0 013 3v12a3 3 0 01-3 3H4a3 3 0 01-3-3V6a3 3 0 013-3zm16 2H4a1 1 0 00-1 1v2h18V6a1 1 0 00-1-1zM3 11v8a1 1 0 001 1h16a1 1 0 001-1v-8H3zm2 4h2a1 1 0 010 2H5a1 1 0 010-2zm4 0h6a1 1 0 010 2H9a1 1 0 010-2z"
+      clipRule="evenodd"
+    />
+  </svg>
   );
 }

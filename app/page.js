@@ -4,8 +4,14 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { motion } from "framer-motion"
-
+import { useAuth } from "./contexts/authContext"
+import { useRouter } from "next/navigation"
 export default function Home() {
+  const { token } = useAuth()
+  const router = useRouter()
+  if (token) {
+    router.push("/dashboard")
+  }
   return (
     <div className="flex flex-col min-h-[100dvh] bg-[#000] text-[#ff6b6b]">
       <main className="flex-1">
