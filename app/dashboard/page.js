@@ -234,12 +234,12 @@ export default function Page() {
               </div>
             )}
           </div>
-          <Button
+          <Link href={"/analysis"}
             className="text-muted-foreground hover:text-foreground bg-black hover:bg-slate-800 rounded-full p-4"
           >
             <BarChartIcon className="w-6 h-6" />
             <span className="sr-only">Analysis</span>
-          </Button>
+          </Link>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground bg-black hover:bg-slate-800 rounded-full">
