@@ -36,7 +36,7 @@ export default function Component() {
           }
         });
         const data = await response.json();
-        const { cBalance, bBalance, name } = data;
+        const { name } = data;
         setUsername(name);
       } catch (error) {
         console.error('Error fetching balance:', error);
@@ -60,7 +60,7 @@ export default function Component() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
 
-  }, [token]);
+  }, [token, fetchTransactions]);
 
 
 
