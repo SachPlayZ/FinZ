@@ -359,23 +359,6 @@ export default function Component() {
     }));
   };
 
-  const getPieChartData = () => {
-    const filteredTransactions = filterTransactionsByPeriod(currentPeriod);
-    const categories = {};
-
-    filteredTransactions.forEach(transaction => {
-      if (transaction.type === "expense") {
-        categories[transaction.category] = (categories[transaction.category] || 0) + transaction.amount;
-      }
-    });
-
-    return Object.entries(categories).map(([category, value]) => ({
-      id: category,
-      label: category,
-      value,
-    }));
-  };
-
 
   function LineChart(props) {
     return (
@@ -504,47 +487,6 @@ export default function Component() {
     );
   }
 
-
-  function PieChart(props) {
-    return (
-      <div {...props}>
-        <ResponsivePie
-          key={activeTab}
-          data={getPieChartData(activeTab)}
-          sortByValue
-          margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-          cornerRadius={0}
-          padAngle={0}
-          borderWidth={1}
-          borderColor={"#ffffff"}
-          enableArcLinkLabels={false}
-          arcLabel={(d) => `${d.id}`}
-          arcLabelsTextColor={"#ffffff"}
-          arcLabelsRadiusOffset={0.65}
-          colors={["#ff0000", "#ff6b6b", "#ff8c8c", "#ffbaba", "#ffdcdc", "#fff0f0"]}
-          theme={{
-            labels: {
-              text: {
-                fontSize: "18px",
-                fill: "#ff6b6b",
-              },
-            },
-            tooltip: {
-              chip: {
-                borderRadius: "9999px",
-              },
-              container: {
-                fontSize: "12px",
-                textTransform: "capitalize",
-                borderRadius: "6px",
-              },
-            },
-          }}
-          role="application"
-        />
-      </div>
-    )
-  }
 
   return (
     <div className="flex flex-col h-full">
