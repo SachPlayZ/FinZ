@@ -339,7 +339,7 @@ export default function Page() {
               <DialogHeader>
                 <DialogTitle>Set Monthly Budget</DialogTitle>
                 <DialogDescription>
-                  Manage your finances better by setting a monthly budget. Enter the amount you'd like to allocate for your
+                  Manage your finances better by setting a monthly budget. Enter the amount youd like to allocate for your
                   monthly expenses.
                 </DialogDescription>
               </DialogHeader>
@@ -366,7 +366,7 @@ export default function Page() {
               {newBudget > 0 && (
                 <div className="mt-4 space-y-2">
                   <p className="text-muted-foreground">
-                    Great, you've set your monthly budget to ₹{newBudget}. Budgeting is a powerful tool to help you achieve your
+                    Great, youve set your monthly budget to ₹{newBudget}. Budgeting is a powerful tool to help you achieve your
                     financial goals and avoid overspending.
                   </p>
                   <div className="flex items-center gap-2">
