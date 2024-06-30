@@ -245,7 +245,7 @@ export default function Component() {
   return (
     <div className="flex flex-col h-full">
       <header className="bg-black px-4 py-3 sm:px-6 sm:py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-4">
           <div className="flex items-center gap-4 bg-slate-900">
             <Button className="bg-slate-900 border-orange-600 hover:bg-slate-700" variant="outline" size="icon" onClick={() => handlePeriodChange("prev")}>
               <ArrowLeftIcon className="h-4 w-4" />
@@ -465,7 +465,7 @@ function PieChart(props) {
         arcLabel={(d) => `${d.id}`}
         arcLabelsTextColor={"#ffffff"}
         arcLabelsRadiusOffset={0.65}
-        colors={["#2563eb"]}
+        colors={["#ff0000", "#ff6b6b", "#ff8c8c", "#ffbaba", "#ffdcdc", "#fff0f0"]}
         theme={{
           labels: {
             text: {

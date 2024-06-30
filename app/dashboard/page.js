@@ -248,7 +248,7 @@ export default function Page() {
               </Button>
             </DialogTrigger>
             <div className="bg-black/50" />
-            <DialogContent className="bg-black text-[#ff6b6b] border-[#ff6b6b] h-auto sm:max-w-[550px]">
+            <DialogContent className="bg-black text-[#ff6b6b] border-[#ff6b6b] rounded-md h-auto w-5/6 sm:max-w-[550px]">
               <DialogHeader>
                 <DialogTitle className="">Add Transaction</DialogTitle>
               </DialogHeader>
