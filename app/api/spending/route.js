@@ -36,7 +36,6 @@ async function posthandler(req) {
     }));
 
     formattedResults.sort((a, b) => b.total - a.total);
-    console.log(formattedResults)
     return NextResponse.json(formattedResults, { status: 200 });
 }
 

@@ -70,10 +70,7 @@ const TransferSchema = new mongoose.Schema({
 
 const BudgetSchema = new mongoose.Schema({
     user: String,
-    category: String,
     amount: Number,
-    startDate: Date,
-    endDate: Date,
 });
 
 const CustomTagSchema = new mongoose.Schema({

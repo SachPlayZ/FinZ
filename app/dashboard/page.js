@@ -17,7 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogClose
+  DialogClose,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
@@ -49,6 +50,13 @@ export default function Page() {
   const [totalSpending, setTotalSpending] = useState('0.00');
   const [totalIncome, setTotalIncome] = useState('0.00');
   const [income, setIncome] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [budget, setBudget] = useState(0);
+  const [newBudget, setNewBudget] = useState(0);
+  const [hasBudget, setHasBudget] = useState(false);
+  const [monthlyBudget, setMonthlyBudget] = useState(0);
+  const [remaining, setRemaining] = useState(0);
+  const [progressValue, setProgressValue] = useState(0);
   const addTag = (tag) => {
     if (tag.trim() !== "") {
       setTags([...tags, tag.trim()])
@@ -60,6 +68,44 @@ export default function Page() {
 
   if (!token) {
     router.push('/account');
+  }
+
+  const getBudget = async (token) => {
+    if (token) {
+      try {
+        const response = await fetch('/api/budget', {
+          method: 'GET',
+          headers: {
+            'Authorization': token
+          }
+        });
+        const data = await response.json();
+        console.log(data.budget[0].amount);
+        setBudget(data.budget[0].amount);
+        setHasBudget(data.budget[0].amount && data.budget[0].amount > 0);
+        setMonthlyBudget(parseFloat(data.budget[0].amount));
+
+      } catch (error) {
+        console.error('Error fetching budget:', error);
+      }
+    }
+  };
+
+  const getTransactions = async (token) => {
+    if (token) {
+      try {
+        const response = await fetch('/api/transactions', {
+          method: 'GET',
+          headers: {
+            'Authorization': token
+          }
+        });
+        const data = await response.json();
+        setTransactions(data.slice(0, 3));
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      }
+    }
   }
 
   const getIncome = async (token) => {
@@ -117,6 +163,28 @@ export default function Page() {
       }
     }
   };
+  
+  const handleBudget = async () => {
+    const budget = JSON.stringify({
+      token: token,
+      amount: newBudget
+    });
+
+    try {
+      const response = await fetch('/api/budget', {
+        method: 'POST',
+        headers: {
+          'Authorization': token
+        },
+        body: budget
+      });
+      const data = await response.json();
+      console.log(data);
+      await getBudget(token);
+    } catch (error) {
+      console.error('Error handling budget:', error);
+    }
+  }
 
   const handleTransaction = async () => {
     const txn = JSON.stringify({
@@ -142,7 +210,11 @@ export default function Page() {
       console.log(data);
       await getBalance(token);
       await getSpending(token);
+      await getBudget(token);
       await getIncome(token);
+      await getTransactions(token);
+      setRemaining(monthlyBudget - totalSpending);
+      setProgressValue((totalSpending / monthlyBudget) * 100);
     } catch (error) {
       console.error('Error handling transaction:', error);
     }
@@ -171,11 +243,17 @@ export default function Page() {
     setTotalIncome(total);
   }, [income]);
 
+  useEffect(() => {
+    setRemaining(monthlyBudget - totalSpending);
+    setProgressValue((totalSpending / monthlyBudget) * 100);
+  }, [monthlyBudget, totalSpending]);
 
   useEffect(() => {
     getSpending(token);
     getBalance(token);
     getIncome(token);
+    getTransactions(token);
+    getBudget(token);
 
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -200,11 +278,23 @@ export default function Page() {
     router.push('/account');
   };
 
+  const getIcon = (type) => {
+    switch (type) {
+      case 'income':
+        return <BriefcaseIcon className="w-5 h-5 text-green-500" />;
+      case 'expense':
+        return <ShoppingCartIcon className="w-5 h-5 text-red-500" />;
+      default:
+        return <ShoppingCartIcon className="w-5 h-5 text-muted-foreground" />;
+    }
+  };
+  const formatCurrency = (amount) => `₹${parseFloat(amount).toFixed(2)}`;
+
   return (
     <div className="flex flex-col h-screen bg-black text-[#ff6b6b]">
       <header className="flex items-center bg-black justify-between px-4 py-3">
         <Link
-          href="/analytics"
+          href="/dashboard"
           className="flex items-center gap-2 text-lg font-bold "
           prefetch={false}>
           <WalletIcon className="w-6 h-6" />
@@ -239,6 +329,63 @@ export default function Page() {
             <BarChartIcon className="w-6 h-6" />
             <span className="sr-only">Analysis</span>
           </Link>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground bg-black hover:bg-slate-800 rounded-full">
+                <WalletIcon className="w-6 h-6" />
+                <span className="sr-only">Add Budget</span>
+              </Button>
+            </DialogTrigger>
+            <div className="bg-black/50" />
+            <DialogContent className="bg-black text-[#ff6b6b] border-[#ff6b6b] rounded-md h-auto w-5/6 sm:max-w-[550px]">
+              <DialogHeader>
+                <DialogTitle>Set Monthly Budget</DialogTitle>
+                <DialogDescription>
+                  Manage your finances better by setting a monthly budget. Enter the amount you'd like to allocate for your
+                  monthly expenses.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="budget">Monthly Budget</Label>
+                  <Input
+                    id="budget"
+                    type="text"
+                    placeholder="Enter your monthly budget"
+                    className="bg-primary"
+                    onChange={(e) => setNewBudget(Number(e.target.value))}
+                  />
+                </div>
+                <DialogClose asChild>
+                <Button
+                  type="submit"
+                  onClick={handleBudget}
+                >
+                  Save Budget
+                </Button>
+                </DialogClose>
+              </div>
+              {newBudget > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-muted-foreground">
+                    Great, you've set your monthly budget to ₹{newBudget}. Budgeting is a powerful tool to help you achieve your
+                    financial goals and avoid overspending.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-full rounded-full bg-slate-900">
+                      <div
+                        className="h-full w-[60%] rounded-full bg-green-500"
+                        style={{ width: `${Math.min((newBudget / 30000) * 100, 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-muted-foreground">
+                      Your budget is {((newBudget / 30000) * 100).toFixed(0)}% of a typical monthly expense of ₹30,000.
+                    </span>
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground bg-black hover:bg-slate-800 rounded-full">
@@ -454,20 +601,20 @@ export default function Page() {
             <CardTitle>This Months Spending</CardTitle>
             <div className="text-sm text-muted-foreground">₹{totalSpending}</div>
           </CardHeader>
-            {spending && spending.length > 0 ? (
-              <CardContent>
+          {spending && spending.length > 0 ? (
+            <CardContent>
               {spending.map((item) => (
                 <div key={item.category} className="flex items-center justify-between py-2">
                   <span>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
                   <span>₹{item.total}</span>
                 </div>
               ))}
-          </CardContent>
-            ) : (
-              <CardContent className="flex flex-col items-center justify-center text-muted-foreground">
+            </CardContent>
+          ) : (
+            <CardContent className="flex flex-col items-center justify-center text-muted-foreground">
               <div clasName="text-center text-muted-foreground">No Transactions Found</div>
-              </CardContent>
-            )}
+            </CardContent>
+          )}
         </Card>
         <Card className="border-[#ff6b6b] col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
@@ -475,112 +622,89 @@ export default function Page() {
             <div className="text-sm text-muted-foreground">₹{totalIncome}</div>
           </CardHeader>
           <CardContent>
-            
+
             {income && income.length > 0 ? (
               income.map((item) => (
-              <div key={item.category} className="flex items-center justify-between py-2">
-                <span>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
-                <span>₹{item.total}</span>
-              </div>
-            ))
-          ): (  
-            <div className="text-center text-muted-foreground">No Transactions Found</div>
-          )}
+                <div key={item.category} className="flex items-center justify-between py-2">
+                  <span>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+                  <span>₹{item.total}</span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground">No Transactions Found</div>
+            )}
           </CardContent>
         </Card>
         <Card className="md:border-[#ff6b6b] border-transparent col-span-1 md:col-span-2 lg:col-span-2 bg-slate-950 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>Recent Transactions</CardTitle>
-            <Link
-              href="#"
-              className="text-muted-foreground hover:text-foreground"
-              prefetch={false}>
+            <Link href="#" className="text-muted-foreground hover:text-foreground" prefetch={false}>
               View All
             </Link>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="bg-muted rounded-full w-8 h-8 flex items-center justify-center">
-                    <ShoppingCartIcon className="w-5 h-5 text-muted-foreground" />
+              {transactions.map((transaction) => (
+                <div key={transaction._id} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-muted rounded-full w-8 h-8 flex items-center justify-center">
+                      {getIcon(transaction.type)}
+                    </div>
+                    <div>
+                      <div className="font-medium">{transaction.description || 'No Description'}</div>
+                      <div className="text-xs text-muted-foreground">{transaction.category}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium">Amazon</div>
-                    <div className="text-xs text-muted-foreground">Groceries</div>
-                  </div>
-                </div>
-                <div className="text-red-500 font-medium">-$45.00</div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="bg-muted rounded-full w-8 h-8 flex items-center justify-center">
-                    <BriefcaseIcon className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <div className="font-medium">Salary</div>
-                    <div className="text-xs text-muted-foreground">Income</div>
+                  <div className={`font-medium ${transaction.type === 'expense' ? 'text-red-500' : 'text-green-500'}`}>
+                    {transaction.type === 'expense' ? '-' : '+'}₹{transaction.amount.toFixed(2)}
                   </div>
                 </div>
-                <div className="text-green-500 font-medium">+$3,000.00</div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="bg-muted rounded-full w-8 h-8 flex items-center justify-center">
-                    <CreditCardIcon className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <div className="font-medium">Visa</div>
-                    <div className="text-xs text-muted-foreground">Payment</div>
-                  </div>
-                </div>
-                <div className="text-red-500 font-medium">-$100.00</div>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
-        <Card className="border-[#ff6b6b] col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
-          <CardHeader>
-            <CardTitle>Spending vs. Income</CardTitle>
+        {!hasBudget ? (<Card className="border-[#ff6b6b] col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle>Budget Details</CardTitle>
           </CardHeader>
           <CardContent>
-            <TooltipProvider>
-              <div className="grid gap-4">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span>Income</span>
-                    <span>$3,500.00</span>
-                  </div>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Progress value={70} />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>70%</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span>Spending</span>
-                    <span>$1,250.00</span>
-                  </div>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Progress value={30} />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>30%</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </div>
-            </TooltipProvider>
+            <div className="text-center text-muted-foreground">
+              Budget Not Added Yet<br />
+              Add a Budget Now!
+            </div>
           </CardContent>
-        </Card>
+        </Card>)
+          :
+          (<Card className="border-[#ff6b6b] col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
+            <CardHeader className="flex items-center justify-between">
+              <CardTitle>Budget Details</CardTitle>
+              <div className={`text-sm font-medium ${remaining < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                {remaining < 0 ? 'Over Budget' : 'Within Budget'}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between py-2">
+                <span>Monthly Budget</span>
+                <span>{formatCurrency(budget)}</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span>Spent so far</span>
+                <span>{formatCurrency(totalSpending)}</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span>{remaining < 0 ? 'Over' : 'Remaining'}</span>
+                <span className={`font-medium ${remaining < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                  {formatCurrency(Math.abs(remaining))}
+                </span>
+              </div>
+              <div className="h-3 w-full rounded-full bg-slate-900 mt-2">
+                      <div
+                        className={`h-full w-[60%] rounded-full ${Math.min(progressValue, 100) > 90 ? 'bg-red-500' : 'bg-green-500'}`}
+                        style={{ width: `${Math.min(progressValue, 100)}%` }}
+                      />
+                    </div>
+            </CardContent>
+          </Card>)}
       </main>
     </div>
   )
