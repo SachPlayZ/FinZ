@@ -8,10 +8,11 @@ import { useAuth } from "../contexts/authContext"
 import { format } from 'date-fns';
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-
+import { useRouter } from "next/navigation"
 
 
 export default function Transactions() {
+    const router = useRouter()
     const [search, setSearch] = useState("")
     const [sort, setSort] = useState({ key: "date", order: "desc" })
     const { token } = useAuth();

@@ -8,7 +8,7 @@ import { ResponsiveLine } from "@nivo/line"
 import { ResponsivePie } from "@nivo/pie"
 import { ResponsiveBar } from '@nivo/bar';
 import Link from "next/link"
-
+import { useRouter } from "next/navigation"
 export default function Component() {
   const { token } = useAuth()
   const [transactions, setTransactions] = useState([])
@@ -24,7 +24,7 @@ export default function Component() {
   const [username, setUsername] = useState("")
 
   const { logout } = useAuth()
-
+  const router = useRouter()
 
   const getBalance = async (token) => {
     if (token) {
