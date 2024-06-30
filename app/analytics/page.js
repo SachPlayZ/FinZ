@@ -8,7 +8,6 @@ import { ResponsiveLine } from "@nivo/line"
 import { ResponsivePie } from "@nivo/pie"
 import { ResponsiveBar } from '@nivo/bar';
 import Link from "next/link"
-import { get } from "mongoose"
 
 export default function Component() {
   const { token } = useAuth()
@@ -46,6 +45,7 @@ export default function Component() {
   };
   useEffect(() => {
     if (token) {
+      fetchTransactions();
       getBalance(token);
     }
     const handleClickOutside = (event) => {

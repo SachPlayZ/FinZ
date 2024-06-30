@@ -12,6 +12,7 @@
     "@heroicons/react": "^2.1.4",
     "@nivo/line": "^0.87.0",
     "@nivo/pie": "^0.87.0",
+    "@nivo/bar": "^0.87.0",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-popover": "^1.1.1",
