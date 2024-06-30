@@ -8,7 +8,6 @@ import { ResponsiveLine } from "@nivo/line"
 import { ResponsivePie } from "@nivo/pie"
 import { ResponsiveBar } from '@nivo/bar';
 import Link from "next/link"
-import { get } from "mongoose"
 
 export default function Component() {
   const { token } = useAuth()
@@ -46,6 +45,7 @@ export default function Component() {
   };
   useEffect(() => {
     if (token) {
+      fetchTransactions();
       getBalance(token);
     }
     const handleClickOutside = (event) => {
@@ -547,7 +547,7 @@ export default function Component() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-slate-950">
       <header className="flex items-center bg-black justify-between px-4 py-3 text-[#ff6b6b]">
         <Link
           href="/dashboard"
@@ -643,7 +643,7 @@ export default function Component() {
           </Card>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <Card className="bg-black ">
+          <Card className=" bg-slate-900 border-[#ff6b6b]">
             <CardHeader>
               <CardTitle className="text-[#ff6b6b]">Income vs Expense</CardTitle>
             </CardHeader>
@@ -651,7 +651,7 @@ export default function Component() {
               <LineChart className="aspect-[4/3]" />
             </CardContent>
           </Card>
-          <Card className="bg-black">
+          <Card className="bg-slate-900 border-[#ff6b6b]">
             <CardHeader>
               <CardTitle className="text-[#ff6b6b]">Expense Breakdown</CardTitle>
             </CardHeader>

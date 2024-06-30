@@ -3,8 +3,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
-import { Progress } from "@/components/ui/progress"
 import { useState, useEffect, useRef } from "react"
 import { useAuth } from "../contexts/authContext"
 import { useRouter } from "next/navigation"
@@ -291,7 +289,7 @@ export default function Page() {
   const formatCurrency = (amount) => `₹${parseFloat(amount).toFixed(2)}`;
 
   return (
-    <div className="flex flex-col h-screen bg-black text-[#ff6b6b]">
+    <div className="flex flex-col h-screen bg-slate-950 text-[#ff6b6b]">
       <header className="flex items-center bg-black justify-between px-4 py-3">
         <Link
           href="/dashboard"
@@ -310,7 +308,7 @@ export default function Page() {
               <span className="sr-only">Profile</span>
             </Button>
             {isDropdownOpen && (
-              <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-slate-950 rounded-md shadow-lg py-2">
+              <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-slate-900 rounded-md shadow-lg py-2">
                 <div className="px-4 py-2 text-sm text-[#ff6b6b]">
                   {username}
                 </div>
@@ -473,6 +471,14 @@ export default function Page() {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent className="bg-black text-[#ff6b6b]">
+                      <SelectItem value="salary" className="flex items-center w-full">
+                          <BanknoteIcon className="mr-2 h-5 w-5 inline-block" />
+                          <span className="inline-block">Salary</span>
+                        </SelectItem>
+                        <SelectItem value="investment" className="flex items-center w-full">
+                          <BriefcaseIcon className="mr-2 h-5 w-5 inline-block" />
+                          <span className="inline-block">Investment</span>
+                        </SelectItem>
                         <SelectItem value="groceries" className="flex items-center w-full">
                           <ShoppingBagIcon className="mr-2 h-5 w-5 inline-block" />
                           <span className="inline-block">Groceries</span>
@@ -578,8 +584,8 @@ export default function Page() {
         </nav>
       </header>
       <main
-        className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-auto">
-        <Card className="border-[#ff6b6b] col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
+        className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-auto bg-slate-950">
+        <Card className="border-[#ff6b6b] col-span-1 md:col-span-2 lg:col-span-1 bg-slate-900 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>Current Balance
             </CardTitle>
@@ -596,7 +602,7 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-[#ff6b6b] col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
+        <Card className="border-[#ff6b6b] col-span-1 md:col-span-1 lg:col-span-1 bg-slate-900 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>This Months Spending</CardTitle>
             <div className="text-sm text-muted-foreground">₹{totalSpending}</div>
@@ -612,11 +618,11 @@ export default function Page() {
             </CardContent>
           ) : (
             <CardContent className="flex flex-col items-center justify-center text-muted-foreground">
-              <div clasName="text-center text-muted-foreground">No Transactions Found</div>
+              <div className="text-center text-muted-foreground">No Transactions Found</div>
             </CardContent>
           )}
         </Card>
-        <Card className="border-[#ff6b6b] col-span-1 md:col-span-1 lg:col-span-1 bg-slate-950 text-white">
+        <Card className="border-[#ff6b6b] col-span-1 md:col-span-1 lg:col-span-1 bg-slate-900 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>This Months Income</CardTitle>
             <div className="text-sm text-muted-foreground">₹{totalIncome}</div>
@@ -635,10 +641,10 @@ export default function Page() {
             )}
           </CardContent>
         </Card>
-        <Card className="md:border-[#ff6b6b] border-transparent col-span-1 md:col-span-2 lg:col-span-2 bg-slate-950 text-white">
+        <Card className="md:border-[#ff6b6b] border-transparent col-span-1 md:col-span-2 lg:col-span-2 bg-slate-900 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>Recent Transactions</CardTitle>
-            <Link href="#" className="text-muted-foreground hover:text-foreground" prefetch={false}>
+            <Link href="/transactions" className="text-muted-foreground hover:text-white" prefetch={false}>
               View All
             </Link>
           </CardHeader>
@@ -663,7 +669,7 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-        {!hasBudget ? (<Card className="border-[#ff6b6b] col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
+        {!hasBudget ? (<Card className="border-[#ff6b6b] col-span-1 md:col-span-2 lg:col-span-1 bg-slate-900 text-white">
           <CardHeader className="flex items-center justify-between">
             <CardTitle>Budget Details</CardTitle>
           </CardHeader>
@@ -675,7 +681,7 @@ export default function Page() {
           </CardContent>
         </Card>)
           :
-          (<Card className="border-[#ff6b6b] col-span-1 md:col-span-2 lg:col-span-1 bg-slate-950 text-white">
+          (<Card className="border-[#ff6b6b] col-span-1 md:col-span-2 lg:col-span-1 bg-slate-900 text-white">
             <CardHeader className="flex items-center justify-between">
               <CardTitle>Budget Details</CardTitle>
               <div className={`text-sm font-medium ${remaining < 0 ? 'text-red-500' : 'text-green-500'}`}>
