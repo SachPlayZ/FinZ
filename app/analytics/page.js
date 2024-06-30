@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAuth } from "../contexts/authContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -60,7 +60,7 @@ export default function Component() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
 
-  }, [token, fetchTransactions]);
+  }, [token]);
 
 
 
@@ -73,7 +73,7 @@ export default function Component() {
     router.push('/account');
   };
 
-  const fetchTransactions = useCallback(async () => {
+  const fetchTransactions = async () => {
     try {
       const response = await fetch('/api/transactions', {
         method: 'GET',
@@ -86,7 +86,7 @@ export default function Component() {
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
-  }, [token]);
+  };
   const monthNames = [
     "January",
     "February",
