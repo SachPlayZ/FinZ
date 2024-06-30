@@ -179,6 +179,7 @@ export default function Page() {
       const data = await response.json();
       console.log(data);
       await getBudget(token);
+      setNewBudget(0);
     } catch (error) {
       console.error('Error handling budget:', error);
     }
@@ -295,7 +296,7 @@ export default function Page() {
           href="/dashboard"
           className="flex items-center gap-2 text-lg font-bold "
           prefetch={false}>
-          <WalletIcon className="w-6 h-6" />
+          <DollarSignIcon className="w-6 h-6" />
           FinZ<span className="hidden md:inline">:Finance for GenZ</span>
         </Link>
         <nav className="relative flex items-center gap-4">
@@ -347,6 +348,7 @@ export default function Page() {
                 <div className="space-y-2">
                   <Label htmlFor="budget">Monthly Budget</Label>
                   <Input
+                    autoComplete="off"
                     id="budget"
                     type="text"
                     placeholder="Enter your monthly budget"
@@ -452,6 +454,7 @@ export default function Page() {
                       Amount
                     </Label>
                     <Input
+                      autoComplete="off"
                       id="amount"
                       type="number"
                       placeholder="0.00"
@@ -526,6 +529,7 @@ export default function Page() {
                     Description
                   </Label>
                   <Input
+                    autoComplete="off"
                     id="description"
                     placeholder="Enter a description"
                     className="bg-primary"
@@ -539,6 +543,7 @@ export default function Page() {
                   </Label>
 
                   <Input
+                    autoComplete="off"
                     type="text"
                     placeholder="Add a tag"
                     onKeyDown={(e) => {

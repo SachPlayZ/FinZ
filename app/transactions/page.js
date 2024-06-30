@@ -145,7 +145,7 @@ export default function Transactions() {
                 href="/dashboard"
                 className="flex items-center gap-2 text-lg font-bold "
                 prefetch={false}>
-                <WalletIcon className="w-6 h-6" />
+                <DollarSignIcon className="w-6 h-6" />
                 FinZ<span className="hidden md:inline">:Finance for GenZ</span>
             </Link>
             <nav className="relative flex items-center gap-4">
@@ -214,6 +214,7 @@ export default function Transactions() {
                 <div className="flex items-center justify-between ">
                     <h2 className="text-lg font-semibold">Transactions</h2>
                     <Input
+                        autoComplete="off"
                         placeholder="Search transactions..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -360,5 +361,23 @@ function UserIcon(props) {
         </svg>)
     );
 }
+function DollarSignIcon(props) {
+    return (
+      (<svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round">
+        <line x1="12" x2="12" y1="2" y2="22" />
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>)
+    );
+  }
 
 
