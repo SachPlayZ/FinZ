@@ -234,7 +234,7 @@ export default function Page() {
               </div>
             )}
           </div>
-          <Link href="/analysis"
+          <Link href="/analytics"
             className="text-muted-foreground hover:text-foreground bg-black hover:bg-slate-800 rounded-full p-4"
           >
             <BarChartIcon className="w-6 h-6" />
