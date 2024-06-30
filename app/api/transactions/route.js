@@ -18,7 +18,7 @@ async function posthandler(req) {
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
     const Transaction = mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema);
-    const transactions = await Transaction.find({ user: id}).exec();
+    const transactions = await Transaction.find({ user: id }).exec();
 
     if (!transactions) {
         return NextResponse.json({ message: 'No transactions found' }, { status: 404 });
@@ -27,4 +27,25 @@ async function posthandler(req) {
     return NextResponse.json(sortedTransactions, { status: 200 });
 }
 
-export { posthandler as POST };
+async function gethandler(req) {
+    await connectToDatabase();
+    const token = req.headers.get('Authorization');
+    
+    if (!token) {
+        return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+    const id = await verifyToken(token);
+    if (!id) {
+        return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+    const Transaction = mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema);
+    const transactions = await Transaction.find({ user: id }).exec();
+
+    if (!transactions) {
+        return NextResponse.json({ message: 'No transactions found' }, { status: 404 });
+    }
+    const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return NextResponse.json(sortedTransactions, { status: 200 });
+}
+
+export { posthandler as POST, gethandler as GET };

@@ -1,247 +1,424 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useAuth } from "../contexts/authContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { ResponsiveLine } from "@nivo/line"
 import { ResponsivePie } from "@nivo/pie"
 
 export default function Component() {
+  const { token } = useAuth()
+  const [transactions, setTransactions] = useState([])
   const [activeTab, setActiveTab] = useState("monthly")
   const [currentPeriod, setCurrentPeriod] = useState({
     type: "month",
     value: new Date().getMonth(),
     year: new Date().getFullYear(),
   })
-  const handleTabChange = (tab) => {
-    setActiveTab(tab)
-    if (tab === "monthly") {
-      setCurrentPeriod({
-        type: "month",
-        value: new Date().getMonth(),
-        year: new Date().getFullYear(),
-      })
-    } else if (tab === "yearly") {
-      setCurrentPeriod({
-        type: "year",
-        value: new Date().getFullYear(),
-      })
-    } else {
-      setCurrentPeriod({
-        type: "day",
-        value: new Date().getDate(),
-        month: new Date().getMonth(),
-        year: new Date().getFullYear(),
-      })
+  useEffect(() => {
+    if (token) {
+        fetchTransactions();
     }
+}, [token]);
+
+const fetchTransactions = async () => {
+    try {
+        const response = await fetch('/api/transactions', {
+            method: 'GET',
+            headers: {
+                'Authorization': token,
+            },
+        });
+        const data = await response.json();
+        setTransactions(data);
+    } catch (error) {
+        console.error("Error fetching transactions:", error);
+    }
+};
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+]
+const filterTransactionsByPeriod = (period) => {
+  let filteredTransactions = transactions;
+
+  if (period.type === "month") {
+      filteredTransactions = transactions.filter(transaction => {
+          const date = new Date(transaction.date);
+          return (
+              date.getMonth() === period.value &&
+              date.getFullYear() === period.year
+          );
+      });
+  } else if (period.type === "year") {
+      filteredTransactions = transactions.filter(transaction => {
+          const date = new Date(transaction.date);
+          return date.getFullYear() === period.value;
+      });
+  } else {
+      filteredTransactions = transactions.filter(transaction => {
+          const date = new Date(transaction.date);
+          return (
+              date.getDate() === period.value &&
+              date.getMonth() === period.month &&
+              date.getFullYear() === period.year
+          );
+      });
   }
-  const handlePeriodChange = (direction) => {
-    if (currentPeriod.type === "month") {
+
+  return filteredTransactions;
+};
+
+const calculateTotals = (period) => {
+  const filteredTransactions = filterTransactionsByPeriod(period);
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  filteredTransactions.forEach(transaction => {
+      if (transaction.type === "income") {
+          totalIncome += transaction.amount;
+      } else if (transaction.type === "expense") {
+          totalExpense += transaction.amount;
+      }
+  });
+
+  return { totalIncome, totalExpense, netIncome: totalIncome - totalExpense };
+};
+
+// Initial calculation for current period
+const { totalIncome, totalExpense, netIncome } = calculateTotals(currentPeriod);
+
+const handleTabChange = (tab) => {
+  setActiveTab(tab);
+  let newPeriod = {};
+
+  if (tab === "monthly") {
+      newPeriod = {
+          type: "month",
+          value: new Date().getMonth(),
+          year: new Date().getFullYear(),
+      };
+  } else if (tab === "yearly") {
+      newPeriod = {
+          type: "year",
+          value: new Date().getFullYear(),
+      };
+  } else {
+      newPeriod = {
+          type: "day",
+          value: new Date().getDate(),
+          month: new Date().getMonth(),
+          year: new Date().getFullYear(),
+      };
+  }
+  setCurrentPeriod(newPeriod);
+  const { totalIncome, totalExpense, netIncome } = calculateTotals(newPeriod);
+};
+
+const handlePeriodChange = (direction) => {
+  if (currentPeriod.type === "month") {
       setCurrentPeriod((prev) => {
-        let newMonth = prev.value + (direction === "prev" ? -1 : 1)
-        let newYear = prev.year
-        if (newMonth < 0) {
-          newMonth = 11
-          newYear -= 1
-        } else if (newMonth > 11) {
-          newMonth = 0
-          newYear += 1
-        }
-        return { ...prev, value: newMonth, year: newYear }
-      })
-    } else if (currentPeriod.type === "year") {
-      setCurrentPeriod((prev) => ({
-        ...prev,
-        value: prev.value + (direction === "prev" ? -1 : 1),
-      }))
-    } else {
-      setCurrentPeriod((prev) => {
-        let newDay = prev.value + (direction === "prev" ? -1 : 1)
-        let newMonth = prev.month
-        let newYear = prev.year
-        if (newDay < 1) {
-          newMonth -= 1
+          let newMonth = prev.value + (direction === "prev" ? -1 : 1);
+          let newYear = prev.year;
           if (newMonth < 0) {
-            newMonth = 11
-            newYear -= 1
+              newMonth = 11;
+              newYear -= 1;
+          } else if (newMonth > 11) {
+              newMonth = 0;
+              newYear += 1;
           }
-          newDay = new Date(newYear, newMonth + 1, 0).getDate()
-        } else {
-          const daysInMonth = new Date(newYear, newMonth + 1, 0).getDate()
-          if (newDay > daysInMonth) {
-            newDay = 1
-            newMonth += 1
-            if (newMonth > 11) {
-              newMonth = 0
-              newYear += 1
-            }
+          const newPeriod = { ...prev, value: newMonth, year: newYear };
+          const { totalIncome, totalExpense, netIncome } = calculateTotals(newPeriod);
+          return newPeriod;
+      });
+  } else if (currentPeriod.type === "year") {
+      setCurrentPeriod((prev) => {
+          const newPeriod = { ...prev, value: prev.value + (direction === "prev" ? -1 : 1) };
+          const { totalIncome, totalExpense, netIncome } = calculateTotals(newPeriod);
+          return newPeriod;
+      });
+  } else {
+      setCurrentPeriod((prev) => {
+          let newDay = prev.value + (direction === "prev" ? -1 : 1);
+          let newMonth = prev.month;
+          let newYear = prev.year;
+          if (newDay < 1) {
+              newMonth -= 1;
+              if (newMonth < 0) {
+                  newMonth = 11;
+                  newYear -= 1;
+              }
+              newDay = new Date(newYear, newMonth + 1, 0).getDate();
+          } else {
+              const daysInMonth = new Date(newYear, newMonth + 1, 0).getDate();
+              if (newDay > daysInMonth) {
+                  newDay = 1;
+                  newMonth += 1;
+                  if (newMonth > 11) {
+                      newMonth = 0;
+                      newYear += 1;
+                  }
+              }
           }
-        }
-        return { ...prev, value: newDay, month: newMonth, year: newYear }
-      })
-    }
+          const newPeriod = { ...prev, value: newDay, month: newMonth, year: newYear };
+          const { totalIncome, totalExpense, netIncome } = calculateTotals(newPeriod);
+          return newPeriod;
+      });
   }
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ]
-  const formatPeriod = () => {
-    if (currentPeriod.type === "month") {
-      return `${monthNames[currentPeriod.value]} ${currentPeriod.year}`
-    } else if (currentPeriod.type === "year") {
-      return `${currentPeriod.value}`
-    } else {
-      return `${currentPeriod.value} ${monthNames[currentPeriod.month]}, ${currentPeriod.year}`
-    }
+};
+
+const formatPeriod = () => {
+  if (currentPeriod.type === "month") {
+      return `${monthNames[currentPeriod.value]} ${currentPeriod.year}`;
+  } else if (currentPeriod.type === "year") {
+      return `${currentPeriod.value}`;
+  } else {
+      return `${currentPeriod.value} ${monthNames[currentPeriod.month]}, ${currentPeriod.year}`;
   }
-  const data = {
-    monthly: {
-      income: [
-        { label: "Jan", value: 5000 },
-        { label: "Feb", value: 6000 },
-        { label: "Mar", value: 7500 },
-        { label: "Apr", value: 6800 },
-        { label: "May", value: 7200 },
-        { label: "Jun", value: 8000 },
-        { label: "Jul", value: 7800 },
-        { label: "Aug", value: 7500 },
-        { label: "Sep", value: 8200 },
-        { label: "Oct", value: 8000 },
-        { label: "Nov", value: 8500 },
-        { label: "Dec", value: 9000 },
-      ],
-      expense: [
-        { label: "Jan", value: 3500 },
-        { label: "Feb", value: 4000 },
-        { label: "Mar", value: 4800 },
-        { label: "Apr", value: 4500 },
-        { label: "May", value: 5000 },
-        { label: "Jun", value: 5200 },
-        { label: "Jul", value: 5000 },
-        { label: "Aug", value: 5500 },
-        { label: "Sep", value: 6000 },
-        { label: "Oct", value: 5800 },
-        { label: "Nov", value: 6200 },
-        { label: "Dec", value: 6500 },
-      ],
-    },
-    yearly: {
-      income: [
-        { label: "2020", value: 80000 },
-        { label: "2021", value: 90000 },
-        { label: "2022", value: 100000 },
-        { label: "2023", value: 110000 },
-        { label: "2024", value: 120000 },
-      ],
-      expense: [
-        { label: "2020", value: 60000 },
-        { label: "2021", value: 65000 },
-        { label: "2022", value: 70000 },
-        { label: "2023", value: 75000 },
-        { label: "2024", value: 80000 },
-      ],
-    },
-    daily: {
-      income: [
-        { label: "1", value: 300 },
-        { label: "2", value: 400 },
-        { label: "3", value: 500 },
-        { label: "4", value: 450 },
-        { label: "5", value: 550 },
-        { label: "6", value: 600 },
-        { label: "7", value: 550 },
-        { label: "8", value: 500 },
-        { label: "9", value: 600 },
-        { label: "10", value: 550 },
-        { label: "11", value: 600 },
-        { label: "12", value: 650 },
-        { label: "13", value: 600 },
-        { label: "14", value: 550 },
-        { label: "15", value: 600 },
-        { label: "16", value: 650 },
-        { label: "17", value: 700 },
-        { label: "18", value: 650 },
-        { label: "19", value: 600 },
-        { label: "20", value: 650 },
-        { label: "21", value: 700 },
-        { label: "22", value: 750 },
-        { label: "23", value: 700 },
-        { label: "24", value: 650 },
-        { label: "25", value: 700 },
-        { label: "26", value: 750 },
-        { label: "27", value: 800 },
-        { label: "28", value: 750 },
-        { label: "29", value: 700 },
-        { label: "30", value: 750 },
-        { label: "31", value: 800 },
-      ],
-      expense: [
-        { label: "1", value: 200 },
-        { label: "2", value: 250 },
-        { label: "3", value: 300 },
-        { label: "4", value: 280 },
-        { label: "5", value: 320 },
-        { label: "6", value: 350 },
-        { label: "7", value: 320 },
-        { label: "8", value: 300 },
-        { label: "9", value: 350 },
-        { label: "10", value: 320 },
-        { label: "11", value: 350 },
-        { label: "12", value: 380 },
-        { label: "13", value: 350 },
-        { label: "14", value: 320 },
-        { label: "15", value: 350 },
-        { label: "16", value: 380 },
-        { label: "17", value: 400 },
-        { label: "18", value: 380 },
-        { label: "19", value: 350 },
-        { label: "20", value: 380 },
-        { label: "21", value: 400 },
-        { label: "22", value: 420 },
-        { label: "23", value: 400 },
-        { label: "24", value: 380 },
-        { label: "25", value: 400 },
-        { label: "26", value: 420 },
-        { label: "27", value: 450 },
-        { label: "28", value: 420 },
-        { label: "29", value: 400 },
-        { label: "30", value: 420 },
-        { label: "31", value: 450 },
-      ],
-    },
+};
+
+const getChartData = (tab) => {
+  if (tab === "monthly") {
+      const monthlyIncome = Array(12).fill(0);
+      const monthlyExpense = Array(12).fill(0);
+
+      transactions.forEach(transaction => {
+          const date = new Date(transaction.date);
+          const month = date.getMonth();
+
+          if (transaction.type === "income") {
+              monthlyIncome[month] += transaction.amount;
+          } else if (transaction.type === "expense") {
+              monthlyExpense[month] += transaction.amount;
+          }
+      });
+
+      return [
+          {
+              id: "income",
+              data: monthlyIncome.map((value, index) => ({
+                  x: monthNames[index],
+                  y: value,
+              })),
+          },
+          {
+              id: "expense",
+              data: monthlyExpense.map((value, index) => ({
+                  x: monthNames[index],
+                  y: value,
+              })),
+          },
+      ];
+  } else if (tab === "yearly") {
+      const startYear = currentPeriod.value - 4; // Show last 5 years including the current year
+      const endYear = currentPeriod.value;
+      const yearlyIncome = {};
+      const yearlyExpense = {};
+
+      transactions.forEach(transaction => {
+          const date = new Date(transaction.date);
+          const year = date.getFullYear();
+
+          if (transaction.type === "income") {
+              yearlyIncome[year] = (yearlyIncome[year] || 0) + transaction.amount;
+          } else if (transaction.type === "expense") {
+              yearlyExpense[year] = (yearlyExpense[year] || 0) + transaction.amount;
+          }
+      });
+
+      return [
+          {
+              id: "income",
+              data: Array.from({ length: 5 }, (_, i) => ({
+                  x: (startYear + i).toString(),
+                  y: yearlyIncome[startYear + i] || 0,
+              })),
+          },
+          {
+              id: "expense",
+              data: Array.from({ length: 5 }, (_, i) => ({
+                  x: (startYear + i).toString(),
+                  y: yearlyExpense[startYear + i] || 0,
+              })),
+          },
+      ];
+  } else {
+      const daysInMonth = new Date(currentPeriod.year, currentPeriod.month + 1, 0).getDate();
+      const dailyIncome = Array(daysInMonth).fill(0);
+      const dailyExpense = Array(daysInMonth).fill(0);
+
+      transactions.forEach(transaction => {
+          const date = new Date(transaction.date);
+          const day = date.getDate() - 1;
+          const month = date.getMonth();
+          const year = date.getFullYear();
+
+          if (month === currentPeriod.month && year === currentPeriod.year) {
+              if (transaction.type === "income") {
+                  dailyIncome[day] += transaction.amount;
+              } else if (transaction.type === "expense") {
+                  dailyExpense[day] += transaction.amount;
+              }
+          }
+      });
+
+      return [
+          {
+              id: "income",
+              data: dailyIncome.map((value, index) => ({
+                  x: (index + 1).toString(),
+                  y: value,
+              })),
+          },
+          {
+              id: "expense",
+              data: dailyExpense.map((value, index) => ({
+                  x: (index + 1).toString(),
+                  y: value,
+              })),
+          },
+      ];
   }
-  const getChartData = () => {
-    if (activeTab === "monthly") {
-      return {
-        income: data.monthly.income,
-        expense: data.monthly.expense,
+};
+
+const getPieChartData = () => {
+  const filteredTransactions = filterTransactionsByPeriod(currentPeriod);
+  const categories = {};
+
+  filteredTransactions.forEach(transaction => {
+      if (transaction.type === "expense") {
+          categories[transaction.category] = (categories[transaction.category] || 0) + transaction.amount;
       }
-    } else if (activeTab === "yearly") {
-      return {
-        income: data.yearly.income,
-        expense: data.yearly.expense,
-      }
-    } else {
-      return {
-        income: data.daily.income,
-        expense: data.daily.expense,
-      }
-    }
+  });
+
+  return Object.entries(categories).map(([category, value]) => ({
+      id: category,
+      label: category,
+      value,
+  }));
+};
+
+  
+  function LineChart(props) {
+    return (
+      <div {...props}>
+        <ResponsiveLine
+        key={activeTab}
+          data={getChartData(activeTab)}
+          margin={{ top: 10, right: 10, bottom: 40, left: 40 }}
+          xScale={{ type: "point" }}
+          yScale={{ type: "linear",
+            min: "auto",
+            max: "auto",
+            stacked: false,
+            reverse: false }}
+          axisTop={null}
+          axisRight={null}
+          axisBottom={{
+            tickSize: 0,
+            tickPadding: 16,
+            tickValues: "every 1 month",
+            tickColor: "#ff6b6b",
+            orient: "bottom"
+          }}
+          axisLeft={{
+            tickSize: 0,
+            tickPadding: 16,
+            tickValues: 5,
+            tickColor: "#ff6b6b",
+            orient: "left",
+          }}
+          colors={["#32CD32", "#FF0000"]}
+          pointSize={6}
+          useMesh={true}
+          gridYValues={6}
+          theme={{
+            axis: {
+              ticks: {
+                text: {
+                  fill: "#ff6b6b",
+                },
+              },
+              legend: {
+                text: {
+                  fill: "#ff6b6b",
+                },
+              },
+            },
+            tooltip: {
+              chip: {
+                borderRadius: "9999px",
+              },
+              container: {
+                fontSize: "12px",
+                textTransform: "capitalize",
+                borderRadius: "6px",
+              },
+            },
+            grid: {
+              line: {
+                stroke: "#f3f4f6",
+              },
+            },
+          }}
+          role="application"
+        />
+      </div>
+    )
   }
-  const chartData = getChartData()
-  const totalIncome = chartData.income.reduce((acc, curr) => acc + curr.value, 0)
-  const totalExpense = chartData.expense.reduce((acc, curr) => acc + curr.value, 0)
-  const netIncome = totalIncome - totalExpense
+  
+  function PieChart(props) {
+    return (
+      <div {...props}>
+        <ResponsivePie
+          key={activeTab}
+          data={getPieChartData(activeTab)}
+          sortByValue
+          margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+          cornerRadius={0}
+          padAngle={0}
+          borderWidth={1}
+          borderColor={"#ffffff"}
+          enableArcLinkLabels={false}
+          arcLabel={(d) => `${d.id}`}
+          arcLabelsTextColor={"#ffffff"}
+          arcLabelsRadiusOffset={0.65}
+          colors={["#ff0000", "#ff6b6b", "#ff8c8c", "#ffbaba", "#ffdcdc", "#fff0f0"]}
+          theme={{
+            labels: {
+              text: {
+                fontSize: "18px",
+                fill: "#ff6b6b",
+              },
+            },
+            tooltip: {
+              chip: {
+                borderRadius: "9999px",
+              },
+              container: {
+                fontSize: "12px",
+                textTransform: "capitalize",
+                borderRadius: "6px",
+              },
+            },
+          }}
+          role="application"
+        />
+      </div>
+    )
+  }
+  
   return (
     <div className="flex flex-col h-full">
       <header className="bg-black px-4 py-3 sm:px-6 sm:py-4">
@@ -279,7 +456,7 @@ export default function Component() {
               <CardTitle className="text-[#ff6b6b]">Total Income</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-[#20ff32]">${totalIncome.toLocaleString()}</div>
+              <div className="text-4xl font-bold text-[#20ff32]">₹{totalIncome}</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-900 border-red-600">
@@ -287,7 +464,7 @@ export default function Component() {
               <CardTitle className="text-[#ff6b6b]">Total Expense</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-red-600">${totalExpense.toLocaleString()}</div>
+              <div className="text-4xl font-bold text-red-600">₹{totalExpense}</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-900">
@@ -295,7 +472,7 @@ export default function Component() {
               <CardTitle className="text-[#ff6b6b]">Savings</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-[#ffffff]">${netIncome.toLocaleString()}</div>
+              <div className="text-4xl font-bold text-[#ffffff]">₹{netIncome}</div>
             </CardContent>
           </Card>
         </div>
@@ -364,128 +541,3 @@ function ArrowRightIcon(props) {
 }
 
 
-function LineChart(props) {
-  return (
-    <div {...props}>
-      <ResponsiveLine
-        data={[
-          {
-            id: "Income",
-            data: [
-              { x: "Jan", y: 43 },
-              { x: "Feb", y: 137 },
-              { x: "Mar", y: 61 },
-              { x: "Apr", y: 145 },
-              { x: "May", y: 26 },
-              { x: "Jun", y: 154 },
-            ],
-          },
-          {
-            id: "Expense",
-            data: [
-              { x: "Jan", y: 60 },
-              { x: "Feb", y: 48 },
-              { x: "Mar", y: 177 },
-              { x: "Apr", y: 78 },
-              { x: "May", y: 96 },
-              { x: "Jun", y: 204 },
-            ],
-          },
-        ]}
-        margin={{ top: 10, right: 10, bottom: 40, left: 40 }}
-        xScale={{ type: "point" }}
-        yScale={{ type: "linear" }}
-        axisTop={null}
-        axisRight={null}
-        axisBottom={{
-          tickSize: 0,
-          tickPadding: 16,
-          tickValues: "every 1 month",
-          tickColor: "#ff6b6b",
-        }}
-        axisLeft={{
-          tickSize: 0,
-          tickPadding: 16,
-          tickValues: 5,
-          tickColor: "#ff6b6b",
-        }}
-        colors={["#32CD32", "#FF0000"]}
-        pointSize={6}
-        useMesh={true}
-        gridYValues={6}
-        theme={{
-          axis: {
-            ticks: {
-              text: {
-                fill: "#ff6b6b",
-              },
-            },
-          },
-          tooltip: {
-            chip: {
-              borderRadius: "9999px",
-            },
-            container: {
-              fontSize: "12px",
-              textTransform: "capitalize",
-              borderRadius: "6px",
-            },
-          },
-          grid: {
-            line: {
-              stroke: "#f3f4f6",
-            },
-          },
-        }}
-        role="application"
-      />
-    </div>
-  )
-}
-
-function PieChart(props) {
-  return (
-    <div {...props}>
-      <ResponsivePie
-        data={[
-          { id: "Jan", value: 111 },
-          { id: "Feb", value: 157 },
-          { id: "Mar", value: 129 },
-          { id: "Apr", value: 150 },
-          { id: "May", value: 119 },
-          { id: "Jun", value: 72 },
-        ]}
-        sortByValue
-        margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-        cornerRadius={0}
-        padAngle={0}
-        borderWidth={1}
-        borderColor={"#ffffff"}
-        enableArcLinkLabels={false}
-        arcLabel={(d) => `${d.id}`}
-        arcLabelsTextColor={"#ffffff"}
-        arcLabelsRadiusOffset={0.65}
-        colors={["#ff0000", "#ff6b6b", "#ff8c8c", "#ffbaba", "#ffdcdc", "#fff0f0"]}
-        theme={{
-          labels: {
-            text: {
-              fontSize: "18px",
-              fill: "#ff6b6b",
-            },
-          },
-          tooltip: {
-            chip: {
-              borderRadius: "9999px",
-            },
-            container: {
-              fontSize: "12px",
-              textTransform: "capitalize",
-              borderRadius: "6px",
-            },
-          },
-        }}
-        role="application"
-      />
-    </div>
-  )
-}
