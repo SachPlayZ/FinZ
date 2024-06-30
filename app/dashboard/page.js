@@ -205,7 +205,7 @@ export default function Page() {
     <div className="flex flex-col h-screen bg-black text-[#ff6b6b]">
       <header className="flex items-center bg-black justify-between px-4 py-3">
         <Link
-          href="/"
+          href="/analytics"
           className="flex items-center gap-2 text-lg font-bold "
           prefetch={false}>
           <WalletIcon className="w-6 h-6" />
@@ -234,7 +234,7 @@ export default function Page() {
               </div>
             )}
           </div>
-          <Link href={"/analysis"}
+          <Link href="/analysis"
             className="text-muted-foreground hover:text-foreground bg-black hover:bg-slate-800 rounded-full p-4"
           >
             <BarChartIcon className="w-6 h-6" />
